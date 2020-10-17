@@ -16,13 +16,13 @@ app.get('/', function (req, res) {
 /*app.get('/scripts.js', function(req, res) {
     res.sendFile(__dirname + "/" + "scripts.js")
 }); */
-
+var compileErr = false;
 app.post('/submission', urlencodedParser, function (req, res) {
     response = {
        submission:req.body.submission
     };
     // must write synchronously to ensure main.c exists before gcc is called
-    fs.appendFileSync('main.c', createCFile(response.submission), function (err) {
+    fs.appendFileSync('main.c', createCFile(response.submission, 1), function (err) {
         if (err) throw err;
         console.log('Saved!');
     });
@@ -35,8 +35,12 @@ app.post('/submission', urlencodedParser, function (req, res) {
     }
     console.log('Child Process STDOUT: '+stdout);
     console.log('Child Process STDERR: '+stderr);
+    if (stderr.length > 0) {
+        compileErr = true;
+    } else {
+        compileErr = false;
+    }
     });
-
     gcc.on('exit', function (code) {
         fs.unlink('main.c', function (err) {
             if (err) throw err;
@@ -44,11 +48,14 @@ app.post('/submission', urlencodedParser, function (req, res) {
         });
         var child = spawn('./a.out');
         child.stdout.on('data', (data) => {
-            /*fs.writeFileSync('output.txt', data, function (err) {
-                if (err) throw err;
-                console.log("output saved");
-            });*/
-            console.log(`${data}`);
+            // If all tests were passed ("0" to stdout)
+            if (!compileErr) {
+                if (`${data}` == "0") {
+                console.log("All tests passed!");
+                } else {
+                    console.log(`${data}`+"tests failed!");
+                }
+            }
             // create text node in result.html or main.html (maybe this allows hot reloading) for showing output (pure js for this i think)
         });
         child.stderr.on('data', (data) => {
@@ -64,17 +71,27 @@ app.post('/submission', urlencodedParser, function (req, res) {
     res.sendFile(__dirname + "/" + "result.html")
  })
 
- function createCFile(submission, testNo) {
-     console.log(submission);
-     switch(testNo) {
-         case 1:
-            console.log("First case");
+/*
+createCFile will take the submission from the user and the current test number
+and return the string containing the new C file with the test data, boilerplate,
+and the user submission placed in the correct place. If there is not a test
+available for the given testNo, will print an error to console.log.
+*/
+function createCFile(submission, testNo) {
+    var testStrings, newCFile;
+    var testName;
+    switch (testNo) {
+        // for the first case
+        case 1:
+            testName = "lesson1_tests.c";
             break;
         default:
-            console.log("Test", testNo, "has not been defined yet!");
-            break;
-     }
-     return "sans";
- }
-var file = new XMLHttpRequest();
-file.open("GET", "lesson1_tests.c", false);
+            console.log("No test defined for test ", testNo, "!");
+            return;
+    }
+    var data = fs.readFileSync(testName, {encoding:'utf8', flag:'r'});
+    testStrings = data.split("//#B");
+    console.log(testStrings[0]);
+    newCFile = testStrings[0] + submission + testStrings[1];
+    return newCFile;
+}
