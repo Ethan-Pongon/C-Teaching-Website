@@ -1,0 +1,19 @@
+.sidebar {
+    height: 100%;
+    width: 8%;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: black;
+    overflow-x: hidden;
+    padding-top: 1%;
+}
+
+.sidebar a {
+    padding: 2% 2% 2% 2.5%;
+    text-decoration: none;
+    font-size: 200%;
+    color: green;
+    display: block;
+}
