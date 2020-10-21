@@ -1,0 +1,42 @@
+.contentHeaderBanner {
+    /*margin-left: 12%; /* accounting for sidebar */
+    background: green;
+}
+
+.contentHeaderText {
+    margin-left: 12%;
+    color: black;
+    font-size: 300%;
+    text-align: center;
+}
+
+.content {
+    margin-left: 12%; /* accounting for sidebar */
+}
+
+.contentText {
+    font-size: 150%;
+    margin-left: 10%;
+    margin-right: 10%;
+}
+
+.button {
+    margin-left: 12%;
+    width: 5%;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.page {
+    background-color: #fffdd0;
+    padding: 0;
+    margin: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    position: fixed;
+}
