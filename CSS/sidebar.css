@@ -1,6 +1,6 @@
 .sidebar {
     height: 100%;
-    width: 8%;
+    width: 12%;
     position: fixed;
     z-index: 1;
     top: 0;
@@ -11,7 +11,7 @@
 }
 
 .sidebar a {
-    padding: 2% 2% 2% 2.5%;
+    padding: 4% 2% 4% 2.5%;
     text-decoration: none;
     font-size: 200%;
     color: green;
