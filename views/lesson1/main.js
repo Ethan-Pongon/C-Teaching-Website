@@ -58,7 +58,7 @@ app.post('/submission', urlencodedParser, function (req, res) {
                     resultPage = new ResultsPage(true, numTests - `${data}`, numTests, "All tests passed!");
                     resultPage.buildPage();
                 } else {
-                    console.log(`${data}`+"tests failed!");
+                    console.log(`${data}`+" tests failed!");
                     resultPage = new ResultsPage(true, numTests - `${data}`, numTests, "Some tests failed!");
                     resultPage.buildPage();
                 }
@@ -117,6 +117,10 @@ class ResultsPage {
         this.isDone = false;
         this.maxPoints = maxPoints;
     }
+
+    /*
+    buildPage generates the result.html page with the given instance variables.
+    */
     buildPage() {
         if (this.compiled == false) {
             var page = "<h1> Scoring </h1><b><p>Compiler failed with the following output:<p id=\"output\">" + this.out + "</p></b>";
