@@ -28,8 +28,14 @@ app.get('/home.css', function(req, res) {
 encryptorPath = 'programs/encryptor/encryptor';
 usersPath = 'users/';
 
+/*
+The User Account class takes a username and a password as constructors
+and can be used to verify that the password is correct for the
+corresponding username.
+*/
+
 class UserAccount {
-    constructor(username, password, app) {
+    constructor(username, password) {
         this.username = username;
         this.password = password;
         this.key = "1234"; // numerical key used to ensure caps-sensitivity
@@ -138,6 +144,8 @@ console.log("attempt login: " + currentUser.attemptLogin());
 var invalidUser = new UserAccount('weetsy', 'shrek', app);
 console.log("invalid login: " + invalidUser.attemptLogin());
 
+// CURRENTLY BROKEN. SHOULD NORMALLY SAVE COOKIES LOCALLY
+// TO THE BROWSER
 app.post('/', urlencodedParser, function (req, res) {
     var currentUser = new UserAccount('weetsy', 'Shrek');
     if (currentUser.attemptLogin()) {

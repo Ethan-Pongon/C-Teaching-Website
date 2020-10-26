@@ -10,8 +10,8 @@ var fs = require('fs');
 var server = app.listen(port)
 
 app.get('/', function (req, res) {
-   res.sendFile(__dirname + "/" + "main.html")
-})
+   res.sendFile(__dirname + "/" + "main.html");
+});
 
 /*app.get('/scripts.js', function(req, res) {
     res.sendFile(__dirname + "/" + "scripts.js")
