@@ -5,3 +5,5 @@ views/.DS_Store
 views/lesson1/.DS_Store
 views/lesson1/result.html
 views/lesson1/a.out
+node_modules/*
+package-lock.json
