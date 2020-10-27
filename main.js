@@ -13,7 +13,18 @@ var server = app.listen(port);
 app.use(cookieParser());
 app.get('/', function(req, res) {
     res.sendFile(__dirname + "/views" + "/" + "home.html");
-    console.log("logged in as: " + req.cookies['username']);
+    if (req.headers.cookie == undefined || !req.headers.cookie.includes("username=")) {
+        console.log("Currently logged in as Guest");
+    } else {    
+        console.log("Currently logged in as " + req.headers.cookie.split(';')[0].split('=')[1]);
+    }    
+    var currentUser = new UserAccount('weetsy', 'Shrek');
+    if (currentUser.attemptLogin()) {
+        res.cookie('username', currentUser.username);
+    } else {
+        console.log("Failed to log in. No cookies saved");
+    }
+    //res.clearCookie("username");
 });
 
 app.get('/sidebar.css', function(req, res) {
@@ -146,7 +157,7 @@ console.log("invalid login: " + invalidUser.attemptLogin());
 
 // CURRENTLY BROKEN. SHOULD NORMALLY SAVE COOKIES LOCALLY
 // TO THE BROWSER
-app.post('/', urlencodedParser, function (req, res) {
+app.post('/cookie', urlencodedParser, function (req, res) {
     var currentUser = new UserAccount('weetsy', 'Shrek');
     if (currentUser.attemptLogin()) {
         //res.cookie('username', currentUser.username);
@@ -156,5 +167,5 @@ app.post('/', urlencodedParser, function (req, res) {
         console.log("Failed to log in. No cookies saved");
         return;
     }
-    res.sendFile(__dirname + "/views" + "/" + "home.html");
+    res.send("User data saved to cookie");
 });
