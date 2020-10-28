@@ -17,3 +17,7 @@ app.get('/sidebar.css', function(req, res) {
 app.get('/home.css', function(req, res) {
     res.sendFile(__dirname + "/CSS" + "/" + "home.css");
 });
+
+app.get('/About', function(req, res) {
+    res.sendFile(__dirname + "/views" + "/" + "about.html");
+});
