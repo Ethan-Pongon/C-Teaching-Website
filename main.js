@@ -12,13 +12,15 @@ var fs = require('fs');
 
 var server = app.listen(port);
 app.use(cookieParser());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: false}));
 app.get('/', function(req, res) {
     res.sendFile(__dirname + "/views" + "/" + "home.html");
     if (req.headers.cookie == undefined || !req.headers.cookie.includes("username=")) {
         console.log("Currently logged in as Guest");
     } else {    
         console.log("Currently logged in as " + req.headers.cookie.split(';')[0].split('=')[1]);
-    }    
+    }
     var currentUser = new UserAccount('weetsy', 'Shrek');
     if (currentUser.attemptLogin()) {
         res.cookie('username', currentUser.username);
@@ -167,13 +169,13 @@ class UserAccount {
     }
 }
 // TESTS
-var currentUser = new UserAccount('weetsy', 'Shrek', app);
+var currentUser = new UserAccount('weetsy', 'Shrek');
 currentUser.createUser(); // <- Works!
 console.log("attempt login: " + currentUser.attemptLogin());
 console.log("attempt login: " + currentUser.attemptLogin());
 console.log("attempt login: " + currentUser.attemptLogin());
 console.log("attempt login: " + currentUser.attemptLogin());
-var invalidUser = new UserAccount('weetsy', 'shrek', app);
+var invalidUser = new UserAccount('weetsy', 'shrek');
 console.log("invalid login: " + invalidUser.attemptLogin());
 
 // CURRENTLY BROKEN. SHOULD NORMALLY SAVE COOKIES LOCALLY
