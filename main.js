@@ -36,8 +36,6 @@ app.get('/home.css', function(req, res) {
     res.sendFile(__dirname + "/CSS" + "/" + "home.css");
 });
 
-});
-
 app.get('/About', function(req, res) {
     res.sendFile(__dirname + "/views" + "/" + "about.html");
 });
@@ -56,7 +54,7 @@ app.post('/createacc', function(req, res) {
     console.log("account creation");
     console.log(req.body.newusername);
     console.log(req.body.newpassword);
-
+});
 
 
 
