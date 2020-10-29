@@ -1,0 +1,39 @@
+<link rel="stylesheet" type="text/css" href="sidebar.css">
+<link rel="stylesheet" type="text/css" href="home.css">
+<div class="page">
+<div class="sidebar">
+    <a href="/">Home</a>
+    <a href="/Problems">Problems</a>
+    <a href="/Progress">Progress</a>
+    <a href="/About">About</a>
+    
+</div>
+
+<div class="contentHeaderBanner">
+    <div class="contentHeaderText">
+        <h>codeTeachers</h>
+        <p>Where the code is taught</p>
+    </div>
+</div>
+
+<div class="content">
+    <div class="contentText">
+        <form name="createacc" action="/createacc" method="POST">
+            <input type="text" placeholder="username" name="newusername">
+            <input type="password" placeholder="password" name="newpassword">
+            <button>Create Account!</button>
+        </form>
+    </div>
+</div>
+
+<div class="content">
+    <div class="contentText">
+        <form name="login" action="/login" method="POST">
+            <input type="text" placeholder="username" name="username">
+            <input type="password" placeholder="password" name="password">
+            <button>Sign in!</button>
+        </form>
+    </div>
+</div>
+
+</div>
