@@ -16,10 +16,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.get('/', function(req, res) {
     res.sendFile(__dirname + "/views" + "/" + "home.html");
-    if (req.headers.cookie == undefined || !req.headers.cookie.includes("username=")) {
+    const cookie = new CookieCipher(req.headers.cookie); // Read the user's cookie
+    if (!cookie.hasElement('username')) {
         console.log("Currently logged in as Guest");
     } else {    
-        console.log("Currently logged in as " + req.headers.cookie.split(';')[0].split('=')[1]);
+        console.log("Currently logged in as " + cookie['username']);
     }
     var currentUser = new UserAccount('weetsy', 'Shrek');
     if (currentUser.attemptLogin()) {
@@ -59,8 +60,41 @@ app.post('/createacc', function(req, res) {
 });
 
 
-encryptorPath = 'programs/encryptor/encryptor';
-usersPath = 'users/';
+const encryptorPath = 'programs/encryptor/encryptor';
+const usersPath = 'users/';
+
+/*
+CookieCipher takes the cookie header string and processes it into
+a JSON format with some helpful methods. 
+*/
+class CookieCipher {
+    constructor(data) {
+        if (data == undefined) {
+            return;
+        } else {
+            const dataSplit = data.split(';');
+            for (const i of dataSplit) {
+                const tempSplit = i.split('=');
+                const name = tempSplit[0];
+                this[name] = "";
+                    for (const i of tempSplit.slice(1)) {
+                        this[name] += i;
+                }
+            }
+        }
+    }
+    /*
+    If the user's browser has a cookie for the given element elem, the
+    function will return true. Otherwise, function will return false.
+    */
+    hasElement(elem) {
+        if (this[elem] != undefined) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
 
 /*
 The User Account class takes a username and a password as constructors
