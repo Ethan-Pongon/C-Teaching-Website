@@ -17,3 +17,7 @@
     color: green;
     display: block;
 }
+
+.divider {
+    border-top: 2px solid #FFF;
+}

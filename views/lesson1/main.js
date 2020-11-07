@@ -6,16 +6,21 @@ const port=process.env.PORT || 8081
 const { spawn } = require('child_process');
 const { exec } = require('child_process');
 var fs = require('fs');
+const resolve = require('path').resolve;
 
 var server = app.listen(port)
 
 app.get('/', function (req, res) {
-   res.sendFile(__dirname + "/" + "main.html");
+   res.sendFile(__dirname + "/" + "lesson1.html");
+});
+app.get('/sidebar.css', function(req, res) {
+    res.sendFile(resolve("../../CSS/sidebar.css"));
 });
 
-/*app.get('/scripts.js', function(req, res) {
-    res.sendFile(__dirname + "/" + "scripts.js")
-}); */
+app.get('/home.css', function(req, res) {
+    res.sendFile(resolve("../../CSS/home.css"));
+});
+
 var compileErr = false;
 app.post('/submission', urlencodedParser, function (req, res) {
     response = {

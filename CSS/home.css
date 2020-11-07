@@ -10,6 +10,41 @@
     text-align: center;
 }
 
+.lessonHeaderText {
+    margin-left: 12%;
+    color: black;
+    font-size: 200%;
+    text-align: center;
+}
+
+.lessonContentHeader {
+    margin-left: 12%;
+    color: black;
+    font-size: 200%;
+    font-family: courier;
+    text-align: center;
+    padding-top: 10px;
+}
+
+.lessonContent {
+    margin-left: 12%;
+    color: black;
+    font-size: 100%;
+    margin-right: 2%;
+}
+
+.lessonBarrier {
+    border-top: 3px solid #000;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.codeEntry {
+    resize: none;
+    font-family: courier;
+    margin-left: 12%;
+}
+
 .content {
     margin-left: 12%; /* accounting for sidebar */
 }
