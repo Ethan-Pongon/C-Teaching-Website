@@ -57,15 +57,23 @@ app.post('/go', function(req, res) {
 });
 
 app.post('/login', function(req, res) {
-    console.log("login");
-    console.log(req.body.username);
-    console.log(req.body.password);
+    var verifyUser = new UserAccount(req.body.username, req.body.password);
+    if(verifyUser.userExists()) {
+        if(verifyUser.attemptLogin()) {
+            console.log("succesful login!");
+            res.cookie('username', currentUser.username);
+            res.sendFile(__dirname + "/views" + "/" + "home.html"); // temp sendFile to show program finishes executing
+        }
+        else {
+            console.log("incorrect username/password");
+        }
+    }
+    else{
+        console.log("incorrect username/password");
+    }
 });
 
 app.post('/createacc', function(req, res) {
-    console.log("account creation");
-    console.log(req.body.newusername);
-    console.log(req.body.newpassword);
     var newUser = new UserAccount(req.body.newusername, req.body.newpassword);
     if(!newUser.userExists()) {
         newUser.createUser();
