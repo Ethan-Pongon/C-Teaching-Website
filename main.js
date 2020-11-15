@@ -22,12 +22,14 @@ app.get('/', function(req, res) {
     } else {    
         console.log("Currently logged in as " + cookie['username']);
     }
+    /* commented this out because if it is live code then you are never prompted to make an account or login as you have a pregenerated account
     var currentUser = new UserAccount('weetsy', 'Shrek');
     if (currentUser.attemptLogin()) {
         res.cookie('username', currentUser.username);
     } else {
         console.log("Failed to log in. No cookies saved");
     }
+    */
     //res.clearCookie("username");
 });
 
@@ -44,7 +46,14 @@ app.get('/About', function(req, res) {
 });
 
 app.post('/go', function(req, res) {
-    res.sendFile(__dirname + "/views" + "/" + "login.html");
+    var usercheck = new CookieCipher(req.headers.cookie); // Read the user's cookie
+    if(!usercheck.hasElement(' username')) { // the jsonification of the cookie caused the username field to have a whitespac at the front
+        res.sendFile(__dirname + "/views" + "/" + "login.html"); // user does not have a cookie with their account so they get sent to the login page
+    }
+    else{
+        // need to validate username is a real account but not sure how to do this without cookies being saved properly
+        console.log("user has an account so they'd be sent to a tutorial but we haven't attached tutorials to the rest of the website yet");
+    }
 });
 
 app.post('/login', function(req, res) {
