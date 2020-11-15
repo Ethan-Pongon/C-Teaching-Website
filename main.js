@@ -66,6 +66,16 @@ app.post('/createacc', function(req, res) {
     console.log("account creation");
     console.log(req.body.newusername);
     console.log(req.body.newpassword);
+    var newUser = new UserAccount(req.body.newusername, req.body.newpassword);
+    if(!newUser.userExists()) {
+        newUser.createUser();
+        res.cookie('username', currentUser.username);
+        console.log("new user created, needs to be sent to tutorial from here");
+        res.sendFile(__dirname + "/views" + "/" + "home.html"); // temp sendFile to show program finishes executing
+    }
+    else{
+        console.log("username already in use"); // need to hook something up to the frontend to notify of this
+    }
 });
 
 
