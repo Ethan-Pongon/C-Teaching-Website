@@ -1,5 +1,5 @@
 # C-Teaching-Website
-Website for teaching C that users can complete coding challenges on. This is our project for CS 320 Fundamentals of Software Engineering.
+For our project in CS 320 we have created a website that can be used to learn C programming through interactive coding challenges. The website contains programming tutorials as well as the capability to write code and have it be compiled, run and tested by the server. Users can create an account and progress through the challenges in a sequential order where they may move on whenever they have written code that passes all the tests run on it.
 
 ## Team Members
 - Ethan Pongon
