@@ -1,6 +1,5 @@
 var express = require('express');
 var app = express();
-var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 const { info } = require('console');
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
@@ -11,7 +10,6 @@ const { execSync } = require('child_process')
 var fs = require('fs');
 
 var server = app.listen(port);
-app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.get('/', function(req, res) {
