@@ -12,19 +12,48 @@
 
 </div>
 
+<script>
+    function loginAttempt() {
+        document.getElementById("incorrectPass").innerHTML = "Incorrect Username/Password!";
+        return;
+    }
+    function createAccount() {
+        document.getElementById("alreadyInUse").innerHTML = "Username Already Taken!";
+        return;
+    }
+    function createAccountDelay() {
+        setTimeout(function (err) {
+            return createAccount();
+        }, 2000);
+        return;
+    }
+    function loginAttemptDelay() {
+        setTimeout(function (err) {
+            return loginAttempt();
+        }, 2000);
+        return;
+    }
+</script>
+
+
 <div class="contentHeaderBanner">
     <div class="contentHeaderText">
         <h>codeTeachers</h>
         <p>Where the code is taught</p>
     </div>
 </div>
-
+<div class="content">
+    <div class="contentText">
+            <button id="testButton" onclick="clickedButton()">This is a test button</button>
+    </div>
+</div>
 <div class="content">
     <div class="contentText">
         <form name="createacc" action="/createacc" method="POST">
             <input type="text" placeholder="username" name="newusername">
             <input type="password" placeholder="password" name="newpassword">
-            <button>Create Account!</button>
+            <button onclick="createAccountDelay()">Create Account!</button>
+            <span id="alreadyInUse" style="font-size: 16px; color: red"></span>
         </form>
     </div>
 </div>
@@ -34,7 +63,8 @@
         <form name="login" action="/login" method="POST">
             <input type="text" placeholder="username" name="username">
             <input type="password" placeholder="password" name="password">
-            <button>Sign in!</button>
+            <button onclick="loginAttemptDelay()">Sign in!</button>
+            <span id="incorrectPass" style="font-size: 16px; color: red"></span>
         </form>
     </div>
 </div>
