@@ -17,7 +17,7 @@ app.get('/', function(req, res) {
     const cookie = new CookieCipher(req.headers.cookie); // Read the user's cookie
     if (!cookie.hasElement('username')) {
         console.log("Currently logged in as Guest");
-    } else {    
+    } else {
         console.log("Currently logged in as " + cookie['username']);
     }
     /* commented this out because if it is live code then you are never prompted to make an account or login as you have a pregenerated account
@@ -45,12 +45,13 @@ app.get('/About', function(req, res) {
 
 app.post('/go', function(req, res) {
     var usercheck = new CookieCipher(req.headers.cookie); // Read the user's cookie
-    if(!usercheck.hasElement(' username')) { // the jsonification of the cookie caused the username field to have a whitespac at the front
+    if(!usercheck.hasElement('username')) { // the jsonification of the cookie caused the username field to have a whitespac at the front
         res.sendFile(__dirname + "/views" + "/" + "login.html"); // user does not have a cookie with their account so they get sent to the login page
     }
     else{
         // need to validate username is a real account but not sure how to do this without cookies being saved properly
         console.log("user has an account so they'd be sent to a tutorial but we haven't attached tutorials to the rest of the website yet");
+        res.sendFile(__dirname + "/views/lesson1/lesson1.html");
     }
 });
 
@@ -90,14 +91,14 @@ const usersPath = 'users/';
 
 /*
 CookieCipher takes the cookie header string and processes it into
-a JSON format with some helpful methods. 
+a JSON format with some helpful methods.
 */
 class CookieCipher {
     constructor(data) {
         if (data == undefined) {
             return;
         } else {
-            const dataSplit = data.split(';');
+            const dataSplit = data.split('; ');
             for (const i of dataSplit) {
                 const tempSplit = i.split('=');
                 const name = tempSplit[0];
@@ -251,4 +252,3 @@ app.post('/cookie', urlencodedParser, function (req, res) {
     }
     res.send("User data saved to cookie");
 });
-
