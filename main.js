@@ -72,7 +72,8 @@ app.post('/createacc', function(req, res) {
     var newUser = new UserAccount(req.body.newusername, req.body.newpassword);
     if(!newUser.userExists()) {
         newUser.createUser();
-        res.cookie('username', currentUser.username);
+        res.cookie('username', newUser.username);
+        userLog = newUser.username;
         console.log("new user created, needs to be sent to tutorial from here");
         res.sendFile(__dirname + "/views" + "/" + "home.html"); // temp sendFile to show program finishes executing
     }
