@@ -249,7 +249,7 @@ app.post('/submission', urlencodedParser, function (req, res) {
         if (err) throw err;
         console.log('Saved!');
     });
-    const gcc = exec('gcc -o users/' + cookie['username'] + '/program users/' + cookie['username'] + '/main.c', function (error, stdout, stderr) {
+    const gcc = exec('gcc -std=c99 -o users/' + cookie['username'] + '/program users/' + cookie['username'] + '/main.c', function (error, stdout, stderr) {
     if (error) {
       console.log(error.stack);
       console.log('Error code: '+error.code);
