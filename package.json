@@ -1,0 +1,23 @@
+{
+  "name": "c-teaching-website",
+  "version": "1.0.0",
+  "description": "For our project in CS 320 we have created a website that can be used to learn C programming through interactive coding challenges. The website contains programming tutorials as well as the capability to write code and have it be compiled, run and tested by the server. Users can create an account and progress through the challenges in a sequential order where they may move on whenever they have written code that passes all the tests run on it.",
+  "main": "main.js",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ethan-Pongon/C-Teaching-Website.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ethan-Pongon/C-Teaching-Website/issues"
+  },
+  "homepage": "https://github.com/Ethan-Pongon/C-Teaching-Website#readme"
+}
