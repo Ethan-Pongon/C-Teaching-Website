@@ -45,8 +45,8 @@ app.post('/go', function(req, res) {
         res.sendFile(__dirname + "/views" + "/" + "login.html"); // user does not have a cookie with their account so they get sent to the login page
     }
     else{
-        // need to validate username is a real account but not sure how to do this without cookies being saved properly
-        console.log("user has an account so they'd be sent to a tutorial but we haven't attached tutorials to the rest of the website yet");
+        // Set the userLog global variable to hold the user's username
+        userLog = usercheck['username'];
         res.sendFile(__dirname + "/views/lesson1.html");
     }
 });
@@ -249,7 +249,7 @@ app.post('/submission', urlencodedParser, function (req, res) {
         if (err) throw err;
         console.log('Saved!');
     });
-    const gcc = exec('gcc -o users/' + cookie['username'] + '/program users/' + userLog + '/main.c', function (error, stdout, stderr) {
+    const gcc = exec('gcc -o users/' + cookie['username'] + '/program users/' + cookie['username'] + '/main.c', function (error, stdout, stderr) {
     if (error) {
       console.log(error.stack);
       console.log('Error code: '+error.code);
@@ -347,7 +347,7 @@ class ResultsPage {
     */
     buildPage() {
         if (this.compiled == false) {
-            var page = "<link rel=\"stylesheet\" type=\"text/css\" href=\"sidebar.css\"><link rel=\"stylesheet\" type=\"text/css\" href=\"home.css\"><div class=\"page\"><div class=\"sidebar\"><a href=\"/\">Home</a><div class=\"divider\"></div><a href=\"/Problems\">Problems</a><div class=\"divider\"></div><a href=\"/Progress\">Progress</a><div class=\"divider\"></div><a href=\"/About\">About</a></div><div class=\"contentHeaderBanner\"><div class=\"lessonHeaderText\"><h>Lesson Results</h></div></div><div class=\"lessonContent\"><h1> Scoring </h1><b><p>Compiler failed with the following output:<p id=\"output\">" + this.out + "</p></b></div>";
+            var page = "<link rel=\"stylesheet\" type=\"text/css\" href=\"sidebar.css\"><link rel=\"stylesheet\" type=\"text/css\" href=\"home.css\"><div class=\"page\"><div class=\"sidebar\"><a href=\"/\">Home</a><div class=\"divider\"></div><a href=\"/Progress\">Progress</a><div class=\"divider\"></div><a href=\"/About\">About</a></div><div class=\"contentHeaderBanner\"><div class=\"lessonHeaderText\"><h>Lesson Results</h></div></div><div class=\"lessonContent\"><h1> Scoring </h1><b><p>Compiler failed with the following output:<p id=\"output\">" + this.out + "</p></b></div>";
             fs.writeFileSync('users/' + userLog + '/result.html', page, function (err) {
                 if (err) throw err;
                 console.log('Created result.html page!');
@@ -361,7 +361,7 @@ class ResultsPage {
             } else {
                 button = "</div><div class=\"center\"><form action=\"/go\" method=\"POST\"><button>Back</button></form></div>";
             }
-            var page = "<link rel=\"stylesheet\" type=\"text/css\" href=\"sidebar.css\"><link rel=\"stylesheet\" type=\"text/css\" href=\"home.css\"><div class=\"page\"><div class=\"sidebar\"><a href=\"/\">Home</a><div class=\"divider\"></div><a href=\"/Problems\">Problems</a><div class=\"divider\"></div><a href=\"/Progress\">Progress</a><div class=\"divider\"></div><a href=\"/About\">About</a></div><div class=\"contentHeaderBanner\"><div class=\"lessonHeaderText\"><h>Lesson Results</h></div></div><div class=\"lessonContent\"><h1> Scoring </h1><b><p id=\"score\">" + (this.maxPoints - this.failedTests.length) + " / " + this.maxPoints + "</p><p id=\"output\">" + this.out + "</p></b>" + getFailedDesc(this.failedTests) + button;
+            var page = "<link rel=\"stylesheet\" type=\"text/css\" href=\"sidebar.css\"><link rel=\"stylesheet\" type=\"text/css\" href=\"home.css\"><div class=\"page\"><div class=\"sidebar\"><a href=\"/\">Home</a><div class=\"divider\"></div><a href=\"/Progress\">Progress</a><div class=\"divider\"></div><a href=\"/About\">About</a></div><div class=\"contentHeaderBanner\"><div class=\"lessonHeaderText\"><h>Lesson Results</h></div></div><div class=\"lessonContent\"><h1> Scoring </h1><b><p id=\"score\">" + (this.maxPoints - this.failedTests.length) + " / " + this.maxPoints + "</p><p id=\"output\">" + this.out + "</p></b>" + getFailedDesc(this.failedTests) + button;
             fs.writeFileSync('users/' + userLog + '/result.html', page, function (err) {
                 if (err) throw err;
                 console.log('Created result.html page!');
@@ -402,7 +402,7 @@ function getFailedDesc(testsFailed) {
     // switch statement used for current lesson. For this example, if
     // currentLesson is fixed at 1, case 1 will always be called.
     switch (currentLesson) {
-        case 1:
+        case 1: // For Lesson 1
             // Iterate through all 8 bits (may not all be used)
             for (let i = 1; i < 9; i++) {
                 switch (i) {

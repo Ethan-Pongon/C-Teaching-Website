@@ -3,18 +3,58 @@
 <div class="page">
 <div class="sidebar">
     <a href="/">Home</a>
-    <a href="/Problems">Problems</a>
+    <div class="divider"></div>
     <a href="/Progress">Progress</a>
+    <div class="divider"></div>
     <a href="/About">About</a>
-    
+
 </div>
 
 <div class="contentHeaderBanner">
     <div class="contentHeaderText">
         <h>codeTeachers</h>
-        <p>Where the code is taught</p>
+        <p id="splashText">Where code is taught</p>
     </div>
 </div>
+<script>
+    /*
+    CookieCipher takes the cookie header string and processes it into
+    a JSON format with some helpful methods.
+    */
+    class CookieCipher {
+        constructor(data) {
+            if (data == undefined) {
+                return;
+            } else {
+                const dataSplit = data.split('; ');
+                for (const i of dataSplit) {
+                    const tempSplit = i.split('=');
+                    const name = tempSplit[0];
+                    this[name] = "";
+                        for (const i of tempSplit.slice(1)) {
+                            this[name] += i;
+                    }
+                }
+            }
+        }
+        /*
+        If the user's browser has a cookie for the given element elem, the
+        function will return true. Otherwise, function will return false.
+        */
+        hasElement(elem) {
+            if (this[elem] != undefined) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+    cookie = new CookieCipher(document.cookie);
+    console.log("COOKIE IS " + cookie['username']);
+    if (cookie.hasElement('username')) {
+        document.getElementById("splashText").innerHTML = "Hello, " + cookie['username'] + "!";
+    }
+</script>
 
 <div class="content">
     <div class="contentText">
