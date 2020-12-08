@@ -10,8 +10,8 @@ const { execSync } = require('child_process')
 var fs = require('fs');
 
 // These values should be stored in user cookie / user folder
-var currentLesson = 1;
-const lessonTests = [2,3]; // Array containing test count per lesson
+let currentLesson = 1;
+const lessonTests = [2,7,2]; // Array containing test count per lesson
 let userLog = ""; // Store current username globally
 var server = app.listen(port);
 app.use(bodyParser.json());
@@ -47,7 +47,7 @@ app.post('/go', function(req, res) {
     else{
         // Set the userLog global variable to hold the user's username
         userLog = usercheck['username'];
-        res.sendFile(__dirname + "/views/lesson1.html");
+        res.sendFile(__dirname + "/views/lesson" + currentLesson + ".html");
     }
 });
 
@@ -228,9 +228,12 @@ class UserAccount {
 
 var compileErr = false;
 app.post('/nextlesson', urlencodedParser, function(req, res) {
+    if (currentLesson >= lessonTests.length) {
+        res.sendFile(__dirname + "/views/complete.html");
+        return;
+    }
     currentLesson++;
-
-    res.sendFile(__dirname + "/lesson" + currentLesson + ".html");
+    res.sendFile(__dirname + "/views/lesson" + currentLesson + ".html");
 });
 app.post('/submission', urlencodedParser, function (req, res) {
     const cookie = new CookieCipher(req.headers.cookie); // Read the user's cookie
@@ -317,9 +320,18 @@ function createCFile(submission, testNo) {
         case 1:
             testName = "lesson_modules/lesson1_tests.c";
             break;
+        case 2:
+            testName = "lesson_modules/lesson2_tests.c";
+            break;
+        case 3:
+            testName = "lesson_modules/lesson3_tests.c";
+            break;
         default:
             console.log("No test defined for test ", testNo, "!");
             return;
+    }
+    if (submission.includes("include")) {
+        return "Illegal Input";
     }
     var data = fs.readFileSync(testName, {encoding:'utf8', flag:'r'});
     testStrings = data.split("//#B");
@@ -347,7 +359,7 @@ class ResultsPage {
     */
     buildPage() {
         if (this.compiled == false) {
-            var page = "<link rel=\"stylesheet\" type=\"text/css\" href=\"sidebar.css\"><link rel=\"stylesheet\" type=\"text/css\" href=\"home.css\"><div class=\"page\"><div class=\"sidebar\"><a href=\"/\">Home</a><div class=\"divider\"></div><a href=\"/Progress\">Progress</a><div class=\"divider\"></div><a href=\"/About\">About</a></div><div class=\"contentHeaderBanner\"><div class=\"lessonHeaderText\"><h>Lesson Results</h></div></div><div class=\"lessonContent\"><h1> Scoring </h1><b><p>Compiler failed with the following output:<p id=\"output\">" + this.out + "</p></b></div>";
+            var page = "<link rel=\"stylesheet\" type=\"text/css\" href=\"sidebar.css\"><link rel=\"stylesheet\" type=\"text/css\" href=\"home.css\"><div class=\"page\"><div class=\"sidebar\"><a href=\"/\">Home</a><div class=\"divider\"></div><a href=\"/Progress\">Progress</a><div class=\"divider\"></div><a href=\"/About\">About</a></div><div class=\"contentHeaderBanner\"><div class=\"lessonHeaderText\"><h>Lesson Results</h></div></div><div class=\"testDisplay\"><h1> Scoring </h1><b><p>Compiler failed with the following output:<p id=\"output\">" + this.out + "</p></b></div><div class=\"center\"><form action=\"/go\" method=\"POST\"><button>Back</button></form></div>";
             fs.writeFileSync('users/' + userLog + '/result.html', page, function (err) {
                 if (err) throw err;
                 console.log('Created result.html page!');
@@ -357,11 +369,11 @@ class ResultsPage {
             let button = ""; // Button can change depending on score
             // If all of the tests have passed
             if (this.failedTests.length == 0) {
-                button = "</div><div class=\"center\"><form action=\"/nextlesson\" method=\"POST\"><button>Next Lesson</button></form></div>";
+                button = "<div class=\"center\"><form action=\"/go\" method=\"POST\"><button>Back</button></form></div><div class=\"center\"><form action=\"/nextlesson\" method=\"POST\"><button>Next Lesson</button></form></div>";
             } else {
-                button = "</div><div class=\"center\"><form action=\"/go\" method=\"POST\"><button>Back</button></form></div>";
+                button = "<div class=\"center\"><form action=\"/go\" method=\"POST\"><button>Back</button></form></div>";
             }
-            var page = "<link rel=\"stylesheet\" type=\"text/css\" href=\"sidebar.css\"><link rel=\"stylesheet\" type=\"text/css\" href=\"home.css\"><div class=\"page\"><div class=\"sidebar\"><a href=\"/\">Home</a><div class=\"divider\"></div><a href=\"/Progress\">Progress</a><div class=\"divider\"></div><a href=\"/About\">About</a></div><div class=\"contentHeaderBanner\"><div class=\"lessonHeaderText\"><h>Lesson Results</h></div></div><div class=\"lessonContent\"><h1> Scoring </h1><b><p id=\"score\">" + (this.maxPoints - this.failedTests.length) + " / " + this.maxPoints + "</p><p id=\"output\">" + this.out + "</p></b>" + getFailedDesc(this.failedTests) + button;
+            var page = "<link rel=\"stylesheet\" type=\"text/css\" href=\"sidebar.css\"><link rel=\"stylesheet\" type=\"text/css\" href=\"home.css\"><div class=\"page\"><div class=\"sidebar\"><a href=\"/\">Home</a><div class=\"divider\"></div><a href=\"/Progress\">Progress</a><div class=\"divider\"></div><a href=\"/About\">About</a></div><div class=\"contentHeaderBanner\"><div class=\"lessonHeaderText\"><h>Lesson Results</h></div></div><div class=\"testDisplay\"><h1> Scoring </h1><b><p id=\"score\">" + (this.maxPoints - this.failedTests.length) + " / " + this.maxPoints + "</p><p id=\"output\">" + this.out + "</p></b>" + getFailedDesc(this.failedTests) + "</div>" + button;
             fs.writeFileSync('users/' + userLog + '/result.html', page, function (err) {
                 if (err) throw err;
                 console.log('Created result.html page!');
@@ -418,6 +430,87 @@ function getFailedDesc(testsFailed) {
                             testResults += "<p>❌ a is not a integer</p>";
                         } else {
                             testResults += "<p>✅ a is an integer</p>";
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            break;
+        case 2: // For Lesson 2
+            // Iterate through all 8 bits (may not all be used)
+            for (let i = 1; i < 9; i++) {
+                switch (i) {
+                    case 1:
+                        if (testsFailed.includes(i)) {
+                            testResults += "<p>❌ a is not an integer</p>";
+                        } else {
+                            testResults += "<p>✅ a is an integer</p>";
+                        }
+                        break;
+                    case 2:
+                        if (testsFailed.includes(i)) {
+                            testResults += "<p>❌ b is not an integer</p>";
+                        } else {
+                            testResults += "<p>✅ b is an integer</p>";
+                        }
+                        break;
+                    case 3:
+                        if (testsFailed.includes(i)) {
+                            testResults += "<p>❌ c is not an character</p>";
+                        } else {
+                            testResults += "<p>✅ c is a character</p>";
+                        }
+                        break;
+                    case 4:
+                        if (testsFailed.includes(i)) {
+                            testResults += "<p>❌ a is not equal to 5</p>";
+                        } else {
+                            testResults += "<p>✅ a is equal to 5</p>";
+                        }
+                        break;
+                    case 5:
+                        if (testsFailed.includes(i)) {
+                            testResults += "<p>❌ b is not equal to 7</p>";
+                        } else {
+                            testResults += "<p>✅ b is equal to 7</p>";
+                        }
+                        break;
+                    case 6:
+                        if (testsFailed.includes(i)) {
+                            testResults += "<p>❌ c is not equal to 12</p>";
+                        } else {
+                            testResults += "<p>✅ c is equal to 12</p>";
+                        }
+                        break;
+                    case 7:
+                        if (testsFailed.includes(i)) {
+                            testResults += "<p>❌ c is not equal to a + b</p>";
+                        } else {
+                            testResults += "<p>✅ c is equal to a + b</p>";
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            break;
+        case 3: // For Lesson 3
+            // Iterate through all 8 bits (may not all be used)
+            for (let i = 1; i < 9; i++) {
+                switch (i) {
+                    case 1:
+                        if (testsFailed.includes(i)) {
+                            testResults += "<p>❌ specialNum does not return 42</p>";
+                        } else {
+                            testResults += "<p>✅ specialNum returns 42</p>";
+                        }
+                        break;
+                    case 2:
+                        if (testsFailed.includes(i)) {
+                            testResults += "<p>❌ specialNum does not return an integer</p>";
+                        } else {
+                            testResults += "<p>✅ specialNum returns an integer</p>";
                         }
                         break;
                     default:

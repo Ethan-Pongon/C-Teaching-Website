@@ -16,6 +16,18 @@
     font-size: 200%;
     text-align: center;
 }
+.cInText {
+  font-family: courier;
+  color:gray;
+}
+.important {
+  color: red;
+}
+.example {
+  font-family: courier;
+  color: gray;
+  margin-left: 2%;
+}
 
 .lessonContentHeader {
     margin-left: 12%;
@@ -27,22 +39,41 @@
 }
 
 .lessonContent {
+    height: 40%;
     margin-left: 12%;
     color: black;
     font-size: 100%;
     margin-right: 2%;
+    overflow-y: scroll;
+}
+
+.testDisplay {
+    height: 80%;
+    margin-left: 12%;
+    color: black;
+    font-size: 100%;
+    margin-right: 2%;
+    overflow-y: scroll;
 }
 
 .lessonBarrier {
     border-top: 3px solid #000;
-    padding-top: 10px;
-    padding-bottom: 10px;
 }
 
+.tryText {
+    margin-left: 12%;
+    font-family: courier;
+    color: black;
+    font-size: 130%;
+}
 .codeEntry {
     resize: none;
     font-family: courier;
     margin-left: 12%;
+    width: 84%;
+    height: 20%;
+    max-height: 20%;
+    max-width: 84%;
 }
 
 .content {
@@ -59,8 +90,13 @@
     margin-left: 12%;
     width: 5%;
 }
+.submitButton {
+    margin-left: 12%;
+    margin-top: 5px;
+}
 
 .center {
+    margin-left: 12%;
     display: flex;
     justify-content: center;
     align-items: center;

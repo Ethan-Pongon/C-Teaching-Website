@@ -9,21 +9,29 @@
     <a href="/About">About</a>
 
 </div>
+
 <div class="contentHeaderBanner">
     <div class="lessonHeaderText">
-        <h>Lesson 1</h>
+        <h>Lesson 2</h>
     </div>
 </div>
 
 <div class="lessonContentHeader">
-    <h>Creating a variable in C</h>
+    <h>Using variables in C</h>
 </div>
 <div class="lessonContent">
-    <p>When creating a variable in C, you must specify the specific type of variable you would like to create. When you want to create a new integer variable, you can state <span class="cInText">int x = 7;</span> where <span class="cInText">int</span> specifically mentions the data type, <span class="cInText">x</span> is the name of the variable, and <span class="cInText">7</span> is the value assigned to x.</p>
-
-    <p>After every variable declaration in C, there must be a semicolon after the declaration.</p>
-
-        <p>Using this information, please create the variable a that contains an integer equal to the value 4 <span class="important"> in proper C syntax.</span></p>
+    <p>Create a new integer variable <span class="cInText">a</span> and set it
+    equal to 5. Next, create a new integer variable <span class="cInText">b</span>
+    and set it equal to 7.</p>
+    <p>After creating both variables <span class="cInText">a</span> and <span class="cInText">b</span>, create a new character variable
+    <span class="cInText">c</span> using valid C syntax. Defining a character variable in C can be done in
+    the same way as creating an integer variable, where <span class="cInText">
+    int</span> is replaced with <span class="cInText">char</span>, for
+    instance, the example</p>
+    <p class="example">char c = 3;</p>
+    <p>will create a character variable with value 3. Using this information,
+      assign the char variable c the value of a + b
+      <span class="important"> in proper C syntax.</span></p>
 </div>
 <div class="lessonBarrier"></div>
 <p class="tryText">Try it!</p>
@@ -39,7 +47,7 @@
 </b>
 
 <script>
-    const lessonName = "lesson1";
+    const lessonName = "lesson2";
     function saveInput() {
         localStorage.setItem(lessonName, document.getElementById("lessonInput").value);
     }

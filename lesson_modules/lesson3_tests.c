@@ -2,17 +2,11 @@
 
 /*
 Testfile will check for the following:
-1. a is equal to 4,
-2. a is an integer (or some 32 bit datatype)
+1. specialNum returns the value 42,
+2. specialNum returns an integer (or 32 bit datatype)
 */
-int enterSize = 0;
 
-int sample() {
-	//#B
-
-	enterSize = sizeof(a);
-	return a;
-}
+//#B
 
 int assertEquals(int a, int b) {
 	if (a != b) {
@@ -33,8 +27,8 @@ int binaryTests(int maxTests) {
 int main() {
 	int maxErrors = 2;
 	int errorTests = binaryTests(2);
-	errorTests ^= assertEquals(sample(), 4);
-	errorTests ^= (assertEquals(enterSize, 4) << 1);
+	errorTests ^= (assertEquals(sizeof(specialNum()), 4) << 1);
+	errorTests ^= (assertEquals(specialNum(), 42));
 	printf("%d", errorTests);
 	return errorTests;
 }
