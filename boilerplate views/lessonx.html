@@ -1,0 +1,53 @@
+<link rel="stylesheet" type="text/css" href="sidebar.css">
+<link rel="stylesheet" type="text/css" href="home.css">
+<div class="page">
+<div class="sidebar">
+    <a href="/">Home</a>
+    <div class="divider"></div>
+    <a href="/Progress">Progress</a>
+    <div class="divider"></div>
+    <a href="/About">About</a>
+
+</div>
+<div class="contentHeaderBanner">
+    <div class="lessonHeaderText">
+        <h>Lesson X</h>
+    </div>
+</div>
+
+<div class="lessonContentHeader">
+    <h>Lesson Title</h>
+</div>
+<div class="lessonContent">
+    <p>This is where you discuss what is in a lesson.
+        If you want to show C code in the document, use a span with class
+        <span class="cInText">cInText</span>. There are also other classes
+    available for lesson content, like "important" and "example".</p>
+</div>
+<div class="lessonBarrier"></div>
+<p class="tryText">Try it!</p>
+<b>
+    <!--- have an onload function that sets an attribute of this form with the users name so that the node function can determine who is running the code-->
+    <form action = "/submission" method = "POST">
+        <textarea type = "text" name = "submission"
+            cols = "70" rows = "10" maxlength = "350"
+            class="codeEntry" id="lessonInput"></textarea>
+        <input type = "submit" value = "Submit"
+        onclick="saveInput()" class="submitButton"></input>
+    </form>
+</b>
+
+<script>
+    const lessonName = "lesson1";
+    function saveInput() {
+        localStorage.setItem(lessonName, document.getElementById("lessonInput").value);
+    }
+    function loadInput() {
+        let loadVal = localStorage.getItem(lessonName);
+        console.log(loadVal);
+        if (loadVal != null) {
+            document.getElementById("lessonInput").value = loadVal;
+        }
+    }
+    loadInput();
+</script>
