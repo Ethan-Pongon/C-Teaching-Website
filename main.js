@@ -40,6 +40,10 @@ app.get('/About', function(req, res) {
 });
 
 app.get('/Progress', function(req, res) {
+    var progresscheck = new CookieCipher(req.headers.cookie);
+    /*if(progresscheck.hasElement('username')) {
+
+    }*/
     res.sendFile(__dirname + "/views" + "/" + "progress.html");
 });
 
