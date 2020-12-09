@@ -10,6 +10,8 @@ const { execSync } = require('child_process')
 var fs = require('fs');
 const { strict } = require('assert');
 
+const lessonTotal = 5;
+
 // These values should be stored in user cookie / user folder
 var currentLesson = 1;
 const lessonTests = [2,3]; // Array containing test count per lesson
@@ -55,17 +57,40 @@ app.get('/Progress', function(req, res) {
             var completed = 0;
             var index = 9;
             var checkOrX = progressdata.substring(index-1, index);
-            console.log("checkOrX = " + checkOrX);
-            while(checkOrX == '1' || completed < 5) { // this will continue to loop 
+            //console.log("checkOrX = " + checkOrX);
+            while(checkOrX === '1' && completed < lessonTotal) { // this will continue to loop until it's checked all the lessons a user has completed
                 completed++;
-                console.log("in here");
                 index += 10;
                 checkOrX = progressdata.substring(index-1, index);
-                console.log("checkOrX = " + checkOrX);
+                //process.stdout.write("checkOrX = " + checkOrX);
             }
-            console.log("You have completed through lesson " + completed);
+            htmlObject = fs.readFileSync(__dirname + "/views" + "/" + "progress.html", 'utf-8', (err, data) => {
+                if (err) {
+                  console.error(err)
+                  return undefined
+                }
+                return data
+            })
+            if(htmlObject) {
+                //console.log(htmlObject.substring(1996, 1997))
+                let reps = 0;
+                while(reps < completed){
+                    htmlObject = htmlObject.replace("❌", "✅")
+                    console.log(reps);
+                    reps++;
+                }
+                fs.writeFileSync(__dirname + "/users" + "/" + progresscheck['username'] + "/" + "updatedprogress.html", htmlObject, function (err) {
+                    if (err) throw err;
+                });
+                res.sendFile(__dirname + "/users" + "/" + progresscheck['username'] + "/" + "updatedprogress.html");
+            }
+            else {
+                res.sendFile(__dirname + "/views" + "/" + "progress.html");
+            }
         }
-        res.sendFile(__dirname + "/views" + "/" + "progress.html");
+        else{
+            res.sendFile(__dirname + "/views" + "/" + "progress.html");
+        }
     }
     else {
         res.sendFile(__dirname + "/views" + "/" + "progress.html");
