@@ -8,6 +8,7 @@ const { spawn } = require('child_process');
 const { exec } = require('child_process');
 const { execSync } = require('child_process')
 var fs = require('fs');
+const { strict } = require('assert');
 
 // These values should be stored in user cookie / user folder
 var currentLesson = 1;
@@ -41,10 +42,34 @@ app.get('/About', function(req, res) {
 
 app.get('/Progress', function(req, res) {
     var progresscheck = new CookieCipher(req.headers.cookie);
-    /*if(progresscheck.hasElement('username')) {
-
-    }*/
-    res.sendFile(__dirname + "/views" + "/" + "progress.html");
+    var progressdata;
+    if(progresscheck.hasElement('username')) {
+        progressdata = fs.readFileSync(__dirname + "/users" + "/" + progresscheck['username'] + "/" + "progress", 'utf-8', (err, data) => {
+            if (err) {
+              console.error(err)
+              return undefined
+            }
+            return data
+        })
+        if(progressdata) { // if progressdata has a value assigned to it
+            var completed = 0;
+            var index = 9;
+            var checkOrX = progressdata.substring(index-1, index);
+            console.log("checkOrX = " + checkOrX);
+            while(checkOrX == '1' || completed < 5) { // this will continue to loop 
+                completed++;
+                console.log("in here");
+                index += 10;
+                checkOrX = progressdata.substring(index-1, index);
+                console.log("checkOrX = " + checkOrX);
+            }
+            console.log("You have completed through lesson " + completed);
+        }
+        res.sendFile(__dirname + "/views" + "/" + "progress.html");
+    }
+    else {
+        res.sendFile(__dirname + "/views" + "/" + "progress.html");
+    }
 });
 
 app.post('/go', function(req, res) {
@@ -180,7 +205,7 @@ class UserAccount {
                 console.log("Failed to encrypt password file!");
             }
             });
-            const progressSetup = "Lesson1=0\nLesson2=0\nLesson3=0\nLesson4=0\nLesson5=0\n"
+            const progressSetup = "Lesson1=0\nLesson2=0\nLesson3=0\nLesson4=0\nLesson5=0"
             fs.writeFileSync(usersPath + this.username + '/progress', progressSetup, function (err) {
                 if (err) throw err;
                 console.log('Created progress file!');
