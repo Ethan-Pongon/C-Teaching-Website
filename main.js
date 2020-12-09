@@ -76,7 +76,6 @@ app.get('/Progress', function(req, res) {
                 let reps = 0;
                 while(reps < completed){
                     htmlObject = htmlObject.replace("❌", "✅")
-                    console.log(reps);
                     reps++;
                 }
                 fs.writeFileSync(__dirname + "/users" + "/" + progresscheck['username'] + "/" + "updatedprogress.html", htmlObject, function (err) {
