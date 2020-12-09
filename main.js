@@ -172,6 +172,11 @@ class UserAccount {
                 console.log("Failed to encrypt password file!");
             }
             });
+            const progressSetup = "Lesson1=0\nLesson2=0\nLesson3=0\nLesson4=0\nLesson5=0\n"
+            fs.writeFileSync(usersPath + this.username + '/progress', progressSetup, function (err) {
+                if (err) throw err;
+                console.log('Created progress file!');
+            });
             return true;
         } else {
             return false;
