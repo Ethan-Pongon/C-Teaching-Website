@@ -39,6 +39,10 @@ app.get('/About', function(req, res) {
     res.sendFile(__dirname + "/views" + "/" + "about.html");
 });
 
+app.get('/Progress', function(req, res) {
+    res.sendFile(__dirname + "/views" + "/" + "progress.html");
+});
+
 app.post('/go', function(req, res) {
     var usercheck = new CookieCipher(req.headers.cookie); // Read the user's cookie
     if(!usercheck.hasElement('username')) { // the jsonification of the cookie caused the username field to have a whitespac at the front
