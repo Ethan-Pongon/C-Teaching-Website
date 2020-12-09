@@ -1,0 +1,119 @@
+<link rel="stylesheet" type="text/css" href="sidebar.css">
+<link rel="stylesheet" type="text/css" href="home.css">
+<div class="page">
+<div class="sidebar">
+    <a href="/">Home</a>
+    <div class="divider"></div>
+    <a href="/Progress">Progress</a>
+    <div class="divider"></div>
+    <a href="/About">About</a>
+
+</div>
+
+<div class="contentHeaderBanner">
+    <div class="lessonHeaderText">
+        <h>Lesson 3</h>
+    </div>
+</div>
+
+<div class="lessonContentHeader">
+    <h>Creating functions in C</h>
+</div>
+<div class="lessonContent">
+    <p>Functions are an integral part of programming in C. Functions allow the
+    developer to reuse and run the same lines of code under potentially different
+    circumstances. </p>
+
+    <p>Creating a function starts with the return value. In C, functions can
+        return a wide range of data types, from integers, characters, floats,
+        doubles, and so on. For this example, we will be using the integer
+        return type.</p>
+
+    <p>Starting this function off, we will write <span class="cInText">int</span>
+        as our return value, followed by a space. </p>
+
+    <p>Immediately following the function return type, we will give our function
+        a name. Function names and variables in C must not have any spaces
+        between characters. For instance, C will not accept <span class="cInText">
+        add numbers</span> as a function name. Instead, we can use camelCase or
+        underscores when naming our functions or variables, like
+        <span class="cInText">addNumbers</span> or <span class="cInText">add_numbers
+        </span>. Of course camelCase and underscoring are just good practices,
+        but you can name variables or functions however you like.</p>
+
+    <p>After giving your function a name, place a pair of matching parenthesis
+        after your function name. There does not need to be a space between
+        the function name and the parenthesis, but it is good to always pick
+        one or the other and be consistent with it. This pair of parenthesis
+        will eventually contain our parameters for our function, but for now
+        leave the parenthesis blank.</p>
+
+    <p>So far your function should look like the following:</p>
+    <p class="example">int addNumbers()</p>
+    <p>Next, add a space after the pair of parenthesis and add a pair of curly
+        brackets. Within the curly brackets, press return/enter to add a newline.
+        These curly brackets we have just added will contain our actual code
+        inside of the function. Add a second newline for nicer formatting inside
+        the curly brackets, and create a new variable equal to 7.</p>
+    <p>Following these steps, your code should look similar to the following
+        example:</p>
+    <p class="example">int addNumbers() {<br>&emsp;
+        int a = 14;<br>
+    }</p>
+    <p><span class="important">IMPORTANT NOTE: Whenever using parenthesis (),
+        curly brackets {}, or square brackes [], they must ALWAYS be in pairs.
+        If an open bracket or parenthesis is unmatched, your code will fail
+        to compile!</span></p>
+    <p>Because we assigned the function <span class="cInText">addNumbers</span>
+        to return an integer, we must return some integer in the function
+        before it can be used. To return a value from inside the function,
+        you must use the <span class="cInText">return</span> keyword. If our
+        <span class="cInText">addNumbers</span> function returns the value of
+        <span class="cInText">a</span>, then we must add the statement in our
+        function <span class="cInText">return a;</span>.</p>
+
+    <p>The completed addNumbers function should look like the following:</p>
+    <p class="example">int addNumbers() {<br>&emsp;
+        int a = 14;<br>&emsp;
+        return a;<br>
+    }</p>
+    <p>Now that our <span class="cInText">addNumbers</span> function is completed,
+        we may call the function in the following manner:</p>
+    <p class="example">addNumbers();</p>
+    <p>Now we may use this funtion call inside of other bits of code. For this
+        example, if we chose to set an integer <span class="cInText">a</span> to
+        be equal to 14, we could run <span class="cInText">int a = addNumbers();</span>,
+        and that would essentially be the same as the statement
+        <span class="cInText">int a = 14;</span>.</p>
+
+    <p>For this coding example, create a function named
+        <span class="cInText">specialNum</span> that returns an integer with the
+        value <span class="cInText">42</span>.</p>
+</div>
+<div class="lessonBarrier"></div>
+<p class="tryText">Try it!</p>
+<b>
+    <!--- have an onload function that sets an attribute of this form with the users name so that the node function can determine who is running the code-->
+    <form action = "/submission" method = "POST">
+        <textarea type = "text" name = "submission"
+            cols = "70" rows = "10" maxlength = "350"
+            class="codeEntry" id="lessonInput"></textarea>
+        <input type = "submit" value = "Submit"
+        onclick="saveInput()" class="submitButton"></input>
+    </form>
+</b>
+
+<script>
+    const lessonName = "lesson3";
+    function saveInput() {
+        localStorage.setItem(lessonName, document.getElementById("lessonInput").value);
+    }
+    function loadInput() {
+        let loadVal = localStorage.getItem(lessonName);
+        console.log(loadVal);
+        if (loadVal != null) {
+            document.getElementById("lessonInput").value = loadVal;
+        }
+    }
+    loadInput();
+</script>
