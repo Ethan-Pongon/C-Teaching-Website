@@ -1,13 +1,15 @@
-proofofconcept/a.out
-proofofconcept/package-lock.json
+app/proofofconcept/a.out
+app/proofofconcept/package-lock.json
+app/.DS_Store
 .DS_Store
-views/.DS_Store
-views/lesson1/.DS_Store
-views/lesson1/result.html
-views/lesson1/a.out
-node_modules/*
-package-lock.json
-~$RS_DOC.docx
-~$ftware Design Document.doc
-programs/encryptor/encryptor
-users/*
+app/views/.DS_Store
+app/views/lesson1/.DS_Store
+app/views/lesson1/result.html
+app/views/lesson1/a.out
+app/node_modules/*
+app/package-lock.json
+doc/~$RS_DOC.docx
+doc/~$ftware Design Document.doc
+app/programs/encryptor/encryptor
+app/users/*
+doc/~$nalReport.docx
