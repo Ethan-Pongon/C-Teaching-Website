@@ -109,6 +109,19 @@ app.post('/go', function(req, res) {
     }
 });
 
+app.post('/prev', function(req, res) {
+    var usercheck = new CookieCipher(req.headers.cookie); // Read the user's cookie
+    if(!usercheck.hasElement('username')) { // the jsonification of the cookie caused the username field to have a whitespac at the front
+        res.sendFile(__dirname + "/views" + "/" + "login.html"); // user does not have a cookie with their account so they get sent to the login page
+    }
+    else {
+        const currLesson = getProgress(usercheck['username']) - 1;
+        res.cookie('currentLesson', currLesson);
+        console.log("Current lesson is " + currLesson);
+        res.sendFile(__dirname + "/views/lesson" + currLesson + ".html");
+    }
+});
+
 app.post('/login', function(req, res) {
     var verifyUser = new UserAccount(req.body.username, req.body.password);
     if(verifyUser.userExists()) {
@@ -426,7 +439,7 @@ class ResultsPage {
             let button = ""; // Button can change depending on score
             // If all of the tests have passed
             if (this.failedTests.length == 0) {
-                button = "<div class=\"center\"><form action=\"/go\" method=\"POST\"><button>Back</button></form></div><div class=\"center\"><form action=\"/go\" method=\"POST\"><button>Next Lesson</button></form></div>";
+                button = "<div class=\"center\"><form action=\"/prev\" method=\"POST\"><button>Back</button></form></div><div class=\"center\"><form action=\"/go\" method=\"POST\"><button>Next Lesson</button></form></div>";
                 // update the user's progress when all tests pass
                 updateProgress(this.currentLesson, 1, this.user);
             } else {
