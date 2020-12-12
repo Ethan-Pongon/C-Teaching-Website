@@ -11,11 +11,8 @@ var fs = require('fs');
 const { strict } = require('assert');
 
 const lessonTotal = 5;
-
-// These values should be stored in user cookie / user folder
-let currentLesson = 1;
 const lessonTests = [2,7,2]; // Array containing test count per lesson
-let userLog = ""; // Store current username globally
+
 var server = app.listen(port);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
@@ -26,7 +23,6 @@ app.get('/', function(req, res) {
         console.log("Currently logged in as Guest");
     } else {
         console.log("Currently logged in as " + cookie['username']);
-        userLog = cookie['username'];
     }
 });
 
@@ -102,14 +98,13 @@ app.post('/go', function(req, res) {
         res.sendFile(__dirname + "/views" + "/" + "login.html"); // user does not have a cookie with their account so they get sent to the login page
     }
     else{
-        // Set the userLog global variable to hold the user's username
-        userLog = usercheck['username'];
-        currentLesson = getProgress();
-        console.log("Current lesson is " + currentLesson);
-        if (currentLesson > lessonTests.length) {
+        const currLesson = getProgress(usercheck['username']);
+        res.cookie('currentLesson', currLesson);
+        console.log("Current lesson is " + currLesson);
+        if (currLesson > lessonTests.length) {
             res.sendFile(__dirname + "/views/complete.html");
         } else {
-            res.sendFile(__dirname + "/views/lesson" + currentLesson + ".html");
+            res.sendFile(__dirname + "/views/lesson" + currLesson + ".html");
         }
     }
 });
@@ -136,7 +131,6 @@ app.post('/createacc', function(req, res) {
     if(!newUser.userExists()) {
         newUser.createUser();
         res.cookie('username', newUser.username);
-        userLog = newUser.username;
         console.log("new user created, needs to be sent to tutorial from here");
         res.sendFile(__dirname + "/views" + "/" + "home.html"); // temp sendFile to show program finishes executing
     }
@@ -308,7 +302,7 @@ app.post('/submission', urlencodedParser, function (req, res) {
     console.log("Response is");
     console.log(response);
     // must write synchronously to ensure main.c exists before gcc is called
-    fs.appendFileSync('users/' + cookie['username'] + '/main.c', createCFile(response.submission, currentLesson), function (err) {
+    fs.appendFileSync('users/' + cookie['username'] + '/main.c', createCFile(response.submission, parseInt(cookie['currentLesson'])), function (err) {
         if (err) throw err;
         console.log('Saved!');
     });
@@ -322,7 +316,7 @@ app.post('/submission', urlencodedParser, function (req, res) {
     console.log('Child Process STDERR: '+stderr);
     if (stderr.length > 0) {
         compileErr = true;
-        resultPage = new ResultsPage(false, 0, 0, stderr);
+        resultPage = new ResultsPage(false, 0, 0, stderr, cookie['username'], parseInt(cookie['currentLesson']));
         resultPage.buildPage();
         res.sendFile(__dirname + "/users/" + cookie['username'] + "/result.html");
     } else {
@@ -336,17 +330,17 @@ app.post('/submission', urlencodedParser, function (req, res) {
         });
         var child = spawn('./users/' + cookie['username'] + '/program');
         // Get the number of tests from the lessonTests array
-        var numTests = lessonTests[currentLesson - 1];
+        var numTests = lessonTests[parseInt(cookie['currentLesson']) - 1];
         child.stdout.on('data', (data) => {
             // If all tests were passed ("0" to stdout)
             if (!compileErr) {
                 if (`${data}` == "0") {
                     console.log("All tests passed!");
-                    resultPage = new ResultsPage(true, `${data}`, numTests, "All tests passed!");
+                    resultPage = new ResultsPage(true, `${data}`, numTests, "All tests passed!", cookie['username'], parseInt(cookie['currentLesson']));
                     resultPage.buildPage();
                 } else {
                     console.log(`${data}`+" tests failed!");
-                    resultPage = new ResultsPage(true, `${data}`, numTests, "Some tests failed!");
+                    resultPage = new ResultsPage(true, `${data}`, numTests, "Some tests failed!", cookie['username'], parseInt(cookie['currentLesson']));
                     resultPage.buildPage();
                 }
 
@@ -406,13 +400,15 @@ and output from the program. ResultsPage will have the ability to build a new
 result.html page with the given information.
 */
 class ResultsPage {
-    constructor(compiled, points, maxPoints, out) {
+    constructor(compiled, points, maxPoints, out, user, currentLesson) {
         this.compiled = compiled;
         this.points = points;
         this.out = out;
         this.isDone = false;
         this.maxPoints = maxPoints;
         this.failedTests = failedTests(points);
+        this.user = user;
+        this.currentLesson = currentLesson;
     }
     /*
     buildPage generates the result.html page with the given instance variables.
@@ -420,7 +416,8 @@ class ResultsPage {
     buildPage() {
         if (this.compiled == false) {
             var page = "<link rel=\"stylesheet\" type=\"text/css\" href=\"sidebar.css\"><link rel=\"stylesheet\" type=\"text/css\" href=\"home.css\"><div class=\"page\"><div class=\"sidebar\"><a href=\"/\">Home</a><div class=\"divider\"></div><a href=\"/Progress\">Progress</a><div class=\"divider\"></div><a href=\"/About\">About</a></div><div class=\"contentHeaderBanner\"><div class=\"lessonHeaderText\"><h>Lesson Results</h></div></div><div class=\"testDisplay\"><h1> Scoring </h1><b><p>Compiler failed with the following output:<p id=\"output\">" + this.out + "</p></b></div><div class=\"center\"><form action=\"/go\" method=\"POST\"><button>Back</button></form></div>";
-            fs.writeFileSync('users/' + userLog + '/result.html', page, function (err) {
+            const path = 'users/' + this.user + '/result.html';
+            fs.writeFileSync(path, page, function (err) {
                 if (err) throw err;
                 console.log('Created result.html page!');
                 this.isDone = true;
@@ -431,12 +428,13 @@ class ResultsPage {
             if (this.failedTests.length == 0) {
                 button = "<div class=\"center\"><form action=\"/go\" method=\"POST\"><button>Back</button></form></div><div class=\"center\"><form action=\"/go\" method=\"POST\"><button>Next Lesson</button></form></div>";
                 // update the user's progress when all tests pass
-                updateProgress(currentLesson, 1);
+                updateProgress(this.currentLesson, 1, this.user);
             } else {
                 button = "<div class=\"center\"><form action=\"/go\" method=\"POST\"><button>Back</button></form></div>";
             }
-            var page = "<link rel=\"stylesheet\" type=\"text/css\" href=\"sidebar.css\"><link rel=\"stylesheet\" type=\"text/css\" href=\"home.css\"><div class=\"page\"><div class=\"sidebar\"><a href=\"/\">Home</a><div class=\"divider\"></div><a href=\"/Progress\">Progress</a><div class=\"divider\"></div><a href=\"/About\">About</a></div><div class=\"contentHeaderBanner\"><div class=\"lessonHeaderText\"><h>Lesson Results</h></div></div><div class=\"testDisplay\"><h1> Scoring </h1><b><p id=\"score\">" + (this.maxPoints - this.failedTests.length) + " / " + this.maxPoints + "</p><p id=\"output\">" + this.out + "</p></b>" + getFailedDesc(this.failedTests) + "</div>" + button;
-            fs.writeFileSync('users/' + userLog + '/result.html', page, function (err) {
+            var page = "<link rel=\"stylesheet\" type=\"text/css\" href=\"sidebar.css\"><link rel=\"stylesheet\" type=\"text/css\" href=\"home.css\"><div class=\"page\"><div class=\"sidebar\"><a href=\"/\">Home</a><div class=\"divider\"></div><a href=\"/Progress\">Progress</a><div class=\"divider\"></div><a href=\"/About\">About</a></div><div class=\"contentHeaderBanner\"><div class=\"lessonHeaderText\"><h>Lesson Results</h></div></div><div class=\"testDisplay\"><h1> Scoring </h1><b><p id=\"score\">" + (this.maxPoints - this.failedTests.length) + " / " + this.maxPoints + "</p><p id=\"output\">" + this.out + "</p></b>" + getFailedDesc(this.failedTests, this.currentLesson) + "</div>" + button;
+            const path = 'users/' + this.user + '/result.html';
+            fs.writeFileSync(path, page, function (err) {
                 if (err) throw err;
                 console.log('Created result.html page!');
                 this.isDone = true;
@@ -471,7 +469,7 @@ an HTML string for the results page describing each corresponding test.
 This function depends on the user's browser containing the cookie describing
 the current test.
 */
-function getFailedDesc(testsFailed) {
+function getFailedDesc(testsFailed, currentLesson) {
     var testResults = "";
     // switch statement used for current lesson. For this example, if
     // currentLesson is fixed at 1, case 1 will always be called.
@@ -587,8 +585,8 @@ function getFailedDesc(testsFailed) {
 }
 
 // Returns the number corresponding to the current user's furthest lesson
-function getProgress() {
-    let progressdata = fs.readFileSync(__dirname + "/users" + "/" + userLog + "/" + "progress", 'utf-8', (err, data) => {
+function getProgress(username) {
+    let progressdata = fs.readFileSync(__dirname + "/users" + "/" + username + "/" + "progress", 'utf-8', (err, data) => {
         if (err) {
           console.error(err)
           return undefined
@@ -617,8 +615,8 @@ updated, and the status code corresponds to how that lesson will be updated.
 If the status code is 0, the lesson will be marked as incomplete, if the status
 code is 1, the lesson will be marked as complete, and if the lesson code is 2
 then none of the lessons will be updated for the user.*/
-function updateProgress(lesson, status) {
-    let progressdata = fs.readFileSync(__dirname + "/users" + "/" + userLog + "/" + "progress", 'utf-8', (err, data) => {
+function updateProgress(lesson, status, username) {
+    let progressdata = fs.readFileSync(__dirname + "/users" + "/" + username + "/" + "progress", 'utf-8', (err, data) => {
         if (err) {
           console.error(err)
           return undefined
@@ -658,7 +656,7 @@ function updateProgress(lesson, status) {
             }
         }
     }
-    fs.writeFileSync(__dirname + "/users" + "/" + userLog + "/" + "progress", progressString, function(err) {
+    fs.writeFileSync(__dirname + "/users" + "/" + username + "/" + "progress", progressString, function(err) {
         if (err) throw err;
     });
     console.log("progressString is the following");
