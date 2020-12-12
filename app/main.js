@@ -52,23 +52,31 @@ app.get('/Progress', function(req, res) {
 
 app.post('/go', function(req, res) {
     var usercheck = new CookieCipher(req.headers.cookie); // Read the user's cookie
-    var currentLessonNum = 0;
     if(!usercheck.hasElement('username')) { // the jsonification of the cookie caused the username field to have a whitespac at the front
         res.sendFile(__dirname + "/views" + "/" + "login.html"); // user does not have a cookie with their account so they get sent to the login page
     }
-    // if the else statement is triggered then the user is sent to their farthest lesson they can access
     else{
-        progressdata = fs.readFileSync(__dirname + "/users" + "/" + usercheck['username'] + "/" + "progress", 'utf-8', (err, data) => {
-            if (err) {
-              console.error(err)
-              return undefined
-            }
-            return data
-        });
-        if(progressdata) {
-            currentLessonNum = findLessonNum(progressdata, 1);
+        const currLesson = getProgress(usercheck['username']);
+        res.cookie('currentLesson', currLesson);
+        console.log("Current lesson is " + currLesson);
+        if (currLesson > lessonTests.length) {
+            res.sendFile(__dirname + "/views/complete.html");
+        } else {
+            res.sendFile(__dirname + "/views/lesson" + currLesson + ".html");
         }
-        res.sendFile(__dirname + "/views/lesson" + currentLessonNum + ".html");
+    }
+});
+
+app.post('/prev', function(req, res) {
+    var usercheck = new CookieCipher(req.headers.cookie); // Read the user's cookie
+    if(!usercheck.hasElement('username')) { // the jsonification of the cookie caused the username field to have a whitespac at the front
+        res.sendFile(__dirname + "/views" + "/" + "login.html"); // user does not have a cookie with their account so they get sent to the login page
+    }
+    else {
+        const currLesson = getProgress(usercheck['username']) - 1;
+        res.cookie('currentLesson', currLesson);
+        console.log("Current lesson is " + currLesson);
+        res.sendFile(__dirname + "/views/lesson" + currLesson + ".html");
     }
 });
 
@@ -79,18 +87,13 @@ app.post('/login', function(req, res) {
         if(verifyUser.attemptLogin()) {
             console.log("succesful login!");
             res.cookie('username', verifyUser.username);
-            progressdata = fs.readFileSync(__dirname + "/users" + "/" + req.body.username + "/" + "progress", 'utf-8', (err, data) => {
-                if (err) {
-                  console.error(err)
-                  return undefined
-                }
-                return data
-            });
-            if(progressdata) {
-                currentLessonNum = findLessonNum(progressdata, 1);
-            }
-            res.sendFile(__dirname + "/views/lesson" + currentLessonNum + ".html");
-        }
+            const currLesson = getProgress(verifyUser.username);
+            res.cookie('currentLesson', currLesson);
+            if (currLesson > lessonTests.length) {
+                res.sendFile(__dirname + "/views/complete.html");
+            } else {
+                res.sendFile(__dirname + "/views/lesson" + currLesson + ".html");
+            }        }
         else {
             console.log("incorrect username/password");
         }
@@ -105,9 +108,15 @@ app.post('/createacc', function(req, res) {
     if(!newUser.userExists()) {
         newUser.createUser();
         res.cookie('username', newUser.username);
-        console.log("new user created, needs to be sent to tutorial from here");
-        res.sendFile(__dirname + "/views/lesson1" + ".html"); // send the new user to the first lesson
-    }
+        const currLesson = getProgress(newUser.username);
+        console.log("currentLessonNum = " + currLesson);
+        // Save the currentLesson number as a cookie for later access
+        res.cookie('currentLesson', currLesson);
+        if (currLesson > lessonTests.length) {
+            res.sendFile(__dirname + "/views/complete.html");
+        } else {
+            res.sendFile(__dirname + "/views/lesson" + currLesson + ".html");
+        }    }
     else{
         console.log("username already in use"); // need to hook something up to the frontend to notify of this
     }
@@ -276,6 +285,9 @@ app.post('/submission', urlencodedParser, function (req, res) {
     console.log("Response is");
     console.log(response);
     // must write synchronously to ensure main.c exists before gcc is called
+    console.log("DEBUG INFO");
+    console.log(cookie['username']);
+    console.log(cookie['currentLesson']);
     fs.appendFileSync('users/' + cookie['username'] + '/main.c', createCFile(response.submission, parseInt(cookie['currentLesson'])), function (err) {
         if (err) throw err;
         console.log('Saved!');
@@ -558,56 +570,114 @@ function getFailedDesc(testsFailed, currentLesson) {
     return testResults;
 }
 
-function findProgress(userCookieObj) {
-    progressdata = fs.readFileSync(__dirname + "/users" + "/" + userCookieObj['username'] + "/" + "progress", 'utf-8', (err, data) => {
+// Returns the number corresponding to the current user's furthest lesson
+function getProgress(username) {
+    let progressdata = fs.readFileSync(__dirname + "/users" + "/" + username + "/" + "progress", 'utf-8', (err, data) => {
         if (err) {
           console.error(err)
           return undefined
         }
         return data
     });
-    if(progressdata) { // if progressdata has a value assigned to it
-        var completed = findLessonNum(progressdata, 0);
-        htmlObject = fs.readFileSync(__dirname + "/views" + "/" + "progress.html", 'utf-8', (err, data) => {
-            if (err) {
-              console.error(err)
-              return undefined
-            }
-            return data
-        });
-        if(htmlObject) {
-            //console.log(htmlObject.substring(1996, 1997))
-            let reps = 0;
-            while(reps < completed){
-                htmlObject = htmlObject.replace("❌", "✅")
-                reps++;
-            }
-            fs.writeFileSync(__dirname + "/users" + "/" + userCookieObj['username'] + "/" + "updatedprogress.html", htmlObject, function (err) {
-                if (err) throw err;
-            });
-            return __dirname + "/users" + "/" + userCookieObj['username'] + "/" + "updatedprogress.html";
+    if (progressdata) { // if progressdata has a value assigned to it
+        var completed = 0;
+        var index = 9;
+        var checkOrX = progressdata.substring(index-1, index);
+        //console.log("checkOrX = " + checkOrX);
+        while(checkOrX === '1' && completed < lessonTotal) { // this will continue to loop until it's checked all the lessons a user has completed
+            completed++;
+            index += 10;
+            checkOrX = progressdata.substring(index-1, index);
+            //process.stdout.write("checkOrX = " + checkOrX);
         }
-        else {
-            return undefined
-        }
+        return completed + 1;
     }
+    return 1;
 }
 
-function findLessonNum(progressdata, callerFlag) {
-    if(callerFlag == 1) {
-        var completed = 1;
+/* updateProgress will update the user's progress file given an integer lesson
+and an integer status. The lesson integer corresponds to the lesson being
+updated, and the status code corresponds to how that lesson will be updated.
+If the status code is 0, the lesson will be marked as incomplete, if the status
+code is 1, the lesson will be marked as complete, and if the lesson code is 2
+then none of the lessons will be updated for the user.*/
+function updateProgress(lesson, status, username) {
+    let progressdata = fs.readFileSync(__dirname + "/users" + "/" + username + "/" + "progress", 'utf-8', (err, data) => {
+        if (err) {
+          console.error(err)
+          return undefined
+        }
+        return data
+    });
+    // End function early if progressdata failed to read file
+    if (!progressdata) {
+        return;
     }
-    else{
-        var completed = 0;
+    let progressString = "";
+    progressdata = progressdata.split('\n');
+    console.log("progressData split looks like the following:");
+    console.log(progressdata);
+    for (let i = 1; i <= lessonTotal; i++) {
+        if (i == lesson) {
+            switch (status) {
+                case 0: // Write a 0
+                    progressString += "Lesson" + i + "=0\n";
+                    break;
+                case 1:
+                    progressString += "Lesson" + i + "=1\n";
+                    break;
+                case 2:
+                    progressString += progressdata[i - 1] + "\n";
+                    break;
+                default:
+                    console.log("Invalid case number in updateProgress");
+                    break;
+            }
+        } else {
+            // If we are on the final item, do not add newline character
+            if (i == lessonTotal) {
+                progressString += progressdata[i - 1];
+            } else {
+                progressString += progressdata[i - 1] + "\n";
+            }
+        }
     }
-    var index = 9;
-    var checkOrX = progressdata.substring(index-1, index);
-    //console.log("checkOrX = " + checkOrX);
-    while(checkOrX === '1' && completed < lessonTotal) { // this will continue to loop until it's checked all the lessons a user has completed
-        completed++;
-        index += 10;
-        checkOrX = progressdata.substring(index-1, index);
-        //process.stdout.write("checkOrX = " + checkOrX);
+    fs.writeFileSync(__dirname + "/users" + "/" + username + "/" + "progress", progressString, function(err) {
+        if (err) throw err;
+    });
+    console.log("progressString is the following");
+    console.log(progressString);
+}
+
+/*
+findProgress takes a cookieCipher object and returns the path to the progress
+html page from within the user's directory. In the case that progress.html
+cannot be found, this function will return undefined.
+*/
+function findProgress(userCookieObj) {
+    // 1 is subtracted from getProgress to get # of lessons completed
+    var completed = getProgress(userCookieObj['username']) - 1;
+    htmlObject = fs.readFileSync(__dirname + "/views" + "/" + "progress.html", 'utf-8', (err, data) => {
+        if (err) {
+          console.error(err)
+          return undefined
+        }
+        return data
+    });
+    if(htmlObject) {
+        //console.log(htmlObject.substring(1996, 1997))
+        let reps = 0;
+        while(reps < completed){
+            htmlObject = htmlObject.replace("❌", "✅")
+            reps++;
+        }
+        fs.writeFileSync(__dirname + "/users" + "/" + userCookieObj['username'] + "/" + "updatedprogress.html", htmlObject, function (err) {
+            if (err) throw err;
+        });
+        return __dirname + "/users" + "/" + userCookieObj['username'] + "/" + "updatedprogress.html";
     }
-    return completed;
+    else {
+        return undefined
+    }
+
 }
