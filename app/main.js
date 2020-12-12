@@ -44,7 +44,6 @@ app.get('/About', function(req, res) {
 
 app.get('/Progress', function(req, res) {
     var progresscheck = new CookieCipher(req.headers.cookie);
-    var progressdata;
     if(progresscheck.hasElement('username')) {
         updatedHTMLPath = findProgress(progresscheck);
         if(updatedHTMLPath != undefined) {
@@ -58,13 +57,23 @@ app.get('/Progress', function(req, res) {
 
 app.post('/go', function(req, res) {
     var usercheck = new CookieCipher(req.headers.cookie); // Read the user's cookie
+    var currentLessonNum = 0;
     if(!usercheck.hasElement('username')) { // the jsonification of the cookie caused the username field to have a whitespac at the front
         res.sendFile(__dirname + "/views" + "/" + "login.html"); // user does not have a cookie with their account so they get sent to the login page
     }
+    // if the else statement is triggered then the user is sent to their farthest lesson they can access
     else{
-        // Set the userLog global variable to hold the user's username
-        userLog = usercheck['username'];
-        res.sendFile(__dirname + "/views/lesson" + currentLesson + ".html");
+        progressdata = fs.readFileSync(__dirname + "/users" + "/" + usercheck['username'] + "/" + "progress", 'utf-8', (err, data) => {
+            if (err) {
+              console.error(err)
+              return undefined
+            }
+            return data
+        });
+        if(progressdata) {
+            currentLessonNum = findLessonNum(progressdata, 1);
+        }
+        res.sendFile(__dirname + "/views/lesson" + currentLessonNum + ".html");
     }
 });
 
@@ -553,25 +562,16 @@ function findProgress(userCookieObj) {
           return undefined
         }
         return data
-    })
+    });
     if(progressdata) { // if progressdata has a value assigned to it
-        var completed = 0;
-        var index = 9;
-        var checkOrX = progressdata.substring(index-1, index);
-        //console.log("checkOrX = " + checkOrX);
-        while(checkOrX === '1' && completed < lessonTotal) { // this will continue to loop until it's checked all the lessons a user has completed
-            completed++;
-            index += 10;
-            checkOrX = progressdata.substring(index-1, index);
-            //process.stdout.write("checkOrX = " + checkOrX);
-        }
+        var completed = findLessonNum(progressdata, 0);
         htmlObject = fs.readFileSync(__dirname + "/views" + "/" + "progress.html", 'utf-8', (err, data) => {
             if (err) {
               console.error(err)
               return undefined
             }
             return data
-        })
+        });
         if(htmlObject) {
             //console.log(htmlObject.substring(1996, 1997))
             let reps = 0;
@@ -582,10 +582,29 @@ function findProgress(userCookieObj) {
             fs.writeFileSync(__dirname + "/users" + "/" + userCookieObj['username'] + "/" + "updatedprogress.html", htmlObject, function (err) {
                 if (err) throw err;
             });
-            return __dirname + "/users" + "/" + userCookieObj['username'] + "/" + "updatedprogress.html"
+            return __dirname + "/users" + "/" + userCookieObj['username'] + "/" + "updatedprogress.html";
         }
         else {
             return undefined
         }
     }
+}
+
+function findLessonNum(progressdata, callerFlag) {
+    if(callerFlag == 1) {
+        var completed = 1;
+    }
+    else{
+        var completed = 0;
+    }
+    var index = 9;
+    var checkOrX = progressdata.substring(index-1, index);
+    //console.log("checkOrX = " + checkOrX);
+    while(checkOrX === '1' && completed < lessonTotal) { // this will continue to loop until it's checked all the lessons a user has completed
+        completed++;
+        index += 10;
+        checkOrX = progressdata.substring(index-1, index);
+        //process.stdout.write("checkOrX = " + checkOrX);
+    }
+    return completed;
 }
