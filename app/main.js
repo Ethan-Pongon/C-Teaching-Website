@@ -99,9 +99,8 @@ app.post('/createacc', function(req, res) {
     if(!newUser.userExists()) {
         newUser.createUser();
         res.cookie('username', newUser.username);
-        userLog = newUser.username;
         console.log("new user created, needs to be sent to tutorial from here");
-        res.sendFile(__dirname + "/views" + "/" + "home.html"); // temp sendFile to show program finishes executing
+        res.sendFile(__dirname + "/views/lesson1" + ".html"); // send the new user to the first lesson
     }
     else{
         console.log("username already in use"); // need to hook something up to the frontend to notify of this
