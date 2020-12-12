@@ -13,3 +13,5 @@ doc/~$ftware Design Document.doc
 app/programs/encryptor/encryptor
 app/users/*
 doc/~$nalReport.docx
+.eslintrc
+.idea
