@@ -52,7 +52,7 @@ app.get('/Progress', function(req, res) {
               return undefined
             }
             return data
-        })
+        });
         if(progressdata) { // if progressdata has a value assigned to it
             var completed = 0;
             var index = 9;
@@ -104,7 +104,13 @@ app.post('/go', function(req, res) {
     else{
         // Set the userLog global variable to hold the user's username
         userLog = usercheck['username'];
-        res.sendFile(__dirname + "/views/lesson" + currentLesson + ".html");
+        currentLesson = getProgress();
+        console.log("Current lesson is " + currentLesson);
+        if (currentLesson > lessonTests.length) {
+            res.sendFile(__dirname + "/views/complete.html");
+        } else {
+            res.sendFile(__dirname + "/views/lesson" + currentLesson + ".html");
+        }
     }
 });
 
@@ -289,14 +295,6 @@ class UserAccount {
 }
 
 var compileErr = false;
-app.post('/nextlesson', urlencodedParser, function(req, res) {
-    if (currentLesson >= lessonTests.length) {
-        res.sendFile(__dirname + "/views/complete.html");
-        return;
-    }
-    currentLesson++;
-    res.sendFile(__dirname + "/views/lesson" + currentLesson + ".html");
-});
 app.post('/submission', urlencodedParser, function (req, res) {
     const cookie = new CookieCipher(req.headers.cookie); // Read the user's cookie
     if (!cookie.hasElement('username')) {
@@ -431,7 +429,9 @@ class ResultsPage {
             let button = ""; // Button can change depending on score
             // If all of the tests have passed
             if (this.failedTests.length == 0) {
-                button = "<div class=\"center\"><form action=\"/go\" method=\"POST\"><button>Back</button></form></div><div class=\"center\"><form action=\"/nextlesson\" method=\"POST\"><button>Next Lesson</button></form></div>";
+                button = "<div class=\"center\"><form action=\"/go\" method=\"POST\"><button>Back</button></form></div><div class=\"center\"><form action=\"/go\" method=\"POST\"><button>Next Lesson</button></form></div>";
+                // update the user's progress when all tests pass
+                updateProgress(currentLesson, 1);
             } else {
                 button = "<div class=\"center\"><form action=\"/go\" method=\"POST\"><button>Back</button></form></div>";
             }
@@ -584,4 +584,83 @@ function getFailedDesc(testsFailed) {
             break;
     }
     return testResults;
+}
+
+// Returns the number corresponding to the current user's furthest lesson
+function getProgress() {
+    let progressdata = fs.readFileSync(__dirname + "/users" + "/" + userLog + "/" + "progress", 'utf-8', (err, data) => {
+        if (err) {
+          console.error(err)
+          return undefined
+        }
+        return data
+    });
+    if (progressdata) { // if progressdata has a value assigned to it
+        var completed = 0;
+        var index = 9;
+        var checkOrX = progressdata.substring(index-1, index);
+        //console.log("checkOrX = " + checkOrX);
+        while(checkOrX === '1' && completed < lessonTotal) { // this will continue to loop until it's checked all the lessons a user has completed
+            completed++;
+            index += 10;
+            checkOrX = progressdata.substring(index-1, index);
+            //process.stdout.write("checkOrX = " + checkOrX);
+        }
+        return completed + 1;
+    }
+    return 1;
+}
+
+/* updateProgress will update the user's progress file given an integer lesson
+and an integer status. The lesson integer corresponds to the lesson being
+updated, and the status code corresponds to how that lesson will be updated.
+If the status code is 0, the lesson will be marked as incomplete, if the status
+code is 1, the lesson will be marked as complete, and if the lesson code is 2
+then none of the lessons will be updated for the user.*/
+function updateProgress(lesson, status) {
+    let progressdata = fs.readFileSync(__dirname + "/users" + "/" + userLog + "/" + "progress", 'utf-8', (err, data) => {
+        if (err) {
+          console.error(err)
+          return undefined
+        }
+        return data
+    });
+    // End function early if progressdata failed to read file
+    if (!progressdata) {
+        return;
+    }
+    let progressString = "";
+    progressdata = progressdata.split('\n');
+    console.log("progressData split looks like the following:");
+    console.log(progressdata);
+    for (let i = 1; i <= lessonTotal; i++) {
+        if (i == lesson) {
+            switch (status) {
+                case 0: // Write a 0
+                    progressString += "Lesson" + i + "=0\n";
+                    break;
+                case 1:
+                    progressString += "Lesson" + i + "=1\n";
+                    break;
+                case 2:
+                    progressString += progressdata[i - 1] + "\n";
+                    break;
+                default:
+                    console.log("Invalid case number in updateProgress");
+                    break;
+            }
+        } else {
+            // If we are on the final item, do not add newline character
+            if (i == lessonTotal) {
+                progressString += progressdata[i - 1];
+            } else {
+                progressString += progressdata[i - 1] + "\n";
+            }
+        }
+    }
+    fs.writeFileSync(__dirname + "/users" + "/" + userLog + "/" + "progress", progressString, function(err) {
+        if (err) throw err;
+    });
+    console.log("progressString is the following");
+    console.log(progressString);
 }
