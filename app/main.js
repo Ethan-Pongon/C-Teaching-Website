@@ -78,12 +78,23 @@ app.post('/go', function(req, res) {
 });
 
 app.post('/login', function(req, res) {
+    var currentLessonNum = 0;
     var verifyUser = new UserAccount(req.body.username, req.body.password);
     if(verifyUser.userExists()) {
         if(verifyUser.attemptLogin()) {
             console.log("succesful login!");
             res.cookie('username', verifyUser.username);
-            res.sendFile(__dirname + "/views" + "/" + "home.html"); // temp sendFile to show program finishes executing
+            progressdata = fs.readFileSync(__dirname + "/users" + "/" + req.body.username + "/" + "progress", 'utf-8', (err, data) => {
+                if (err) {
+                  console.error(err)
+                  return undefined
+                }
+                return data
+            });
+            if(progressdata) {
+                currentLessonNum = findLessonNum(progressdata, 1);
+            }
+            res.sendFile(__dirname + "/views/lesson" + currentLessonNum + ".html");
         }
         else {
             console.log("incorrect username/password");
