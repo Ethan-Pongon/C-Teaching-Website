@@ -46,49 +46,9 @@ app.get('/Progress', function(req, res) {
     var progresscheck = new CookieCipher(req.headers.cookie);
     var progressdata;
     if(progresscheck.hasElement('username')) {
-        progressdata = fs.readFileSync(__dirname + "/users" + "/" + progresscheck['username'] + "/" + "progress", 'utf-8', (err, data) => {
-            if (err) {
-              console.error(err)
-              return undefined
-            }
-            return data
-        })
-        if(progressdata) { // if progressdata has a value assigned to it
-            var completed = 0;
-            var index = 9;
-            var checkOrX = progressdata.substring(index-1, index);
-            //console.log("checkOrX = " + checkOrX);
-            while(checkOrX === '1' && completed < lessonTotal) { // this will continue to loop until it's checked all the lessons a user has completed
-                completed++;
-                index += 10;
-                checkOrX = progressdata.substring(index-1, index);
-                //process.stdout.write("checkOrX = " + checkOrX);
-            }
-            htmlObject = fs.readFileSync(__dirname + "/views" + "/" + "progress.html", 'utf-8', (err, data) => {
-                if (err) {
-                  console.error(err)
-                  return undefined
-                }
-                return data
-            })
-            if(htmlObject) {
-                //console.log(htmlObject.substring(1996, 1997))
-                let reps = 0;
-                while(reps < completed){
-                    htmlObject = htmlObject.replace("❌", "✅")
-                    reps++;
-                }
-                fs.writeFileSync(__dirname + "/users" + "/" + progresscheck['username'] + "/" + "updatedprogress.html", htmlObject, function (err) {
-                    if (err) throw err;
-                });
-                res.sendFile(__dirname + "/users" + "/" + progresscheck['username'] + "/" + "updatedprogress.html");
-            }
-            else {
-                res.sendFile(__dirname + "/views" + "/" + "progress.html");
-            }
-        }
-        else{
-            res.sendFile(__dirname + "/views" + "/" + "progress.html");
+        updatedHTMLPath = findProgress(progresscheck);
+        if(updatedHTMLPath != undefined) {
+            res.sendFile(updatedHTMLPath);
         }
     }
     else {
@@ -584,4 +544,48 @@ function getFailedDesc(testsFailed) {
             break;
     }
     return testResults;
+}
+
+function findProgress(userCookieObj) {
+    progressdata = fs.readFileSync(__dirname + "/users" + "/" + userCookieObj['username'] + "/" + "progress", 'utf-8', (err, data) => {
+        if (err) {
+          console.error(err)
+          return undefined
+        }
+        return data
+    })
+    if(progressdata) { // if progressdata has a value assigned to it
+        var completed = 0;
+        var index = 9;
+        var checkOrX = progressdata.substring(index-1, index);
+        //console.log("checkOrX = " + checkOrX);
+        while(checkOrX === '1' && completed < lessonTotal) { // this will continue to loop until it's checked all the lessons a user has completed
+            completed++;
+            index += 10;
+            checkOrX = progressdata.substring(index-1, index);
+            //process.stdout.write("checkOrX = " + checkOrX);
+        }
+        htmlObject = fs.readFileSync(__dirname + "/views" + "/" + "progress.html", 'utf-8', (err, data) => {
+            if (err) {
+              console.error(err)
+              return undefined
+            }
+            return data
+        })
+        if(htmlObject) {
+            //console.log(htmlObject.substring(1996, 1997))
+            let reps = 0;
+            while(reps < completed){
+                htmlObject = htmlObject.replace("❌", "✅")
+                reps++;
+            }
+            fs.writeFileSync(__dirname + "/users" + "/" + userCookieObj['username'] + "/" + "updatedprogress.html", htmlObject, function (err) {
+                if (err) throw err;
+            });
+            return __dirname + "/users" + "/" + userCookieObj['username'] + "/" + "updatedprogress.html"
+        }
+        else {
+            return undefined
+        }
+    }
 }
