@@ -95,7 +95,7 @@ class UserAccount {
         this.isDone = true;
       });
       // Bash commands from node are not logged in .bash_history
-      execSync(`${encryptorPath} ${usersPath}${this.username}/passchk ${this.password}`,
+      exec(`${encryptorPath} ${usersPath}${this.username}/passchk ${this.password}`,
         function (error) {
           if (error) {
             console.log(error.stack);
