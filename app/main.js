@@ -95,7 +95,7 @@ class UserAccount {
         this.isDone = true;
       });
       // Bash commands from node are not logged in .bash_history
-      exec(`${encryptorPath} ${usersPath}${this.username}/passchk ${this.password}`,
+      const encryptor = exec(`${encryptorPath} ${usersPath}${this.username}/passchk ${this.password}`,
         function (error) {
           if (error) {
             console.log(error.stack);
@@ -128,7 +128,7 @@ class UserAccount {
             Decrypt the passchk file with the given password, and check
             if the contents of the file equal the given password.
             */
-      execSync(`${encryptorPath} ${usersPath}${this.username}/passchk ${this.password}`,
+      const decryptor = execSync(`${encryptorPath} ${usersPath}${this.username}/passchk ${this.password}`,
         function (error) {
           if (error) {
             console.log(error.stack);
@@ -146,7 +146,7 @@ class UserAccount {
             Re-encrypt the passchk file after decryption using the given
             password.
             */
-      execSync(`${encryptorPath} ${usersPath}${this.username}/passchk ${this.password}`,
+      const encryptor = execSync(`${encryptorPath} ${usersPath}${this.username}/passchk ${this.password}`,
         function (error) {
           if (error) {
             console.log(error.stack);
