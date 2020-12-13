@@ -52,11 +52,19 @@ The User Account class takes a username and a password as constructors
 and can be used to verify that the password is correct for the
 corresponding username.
 */
-
 class UserAccount {
   constructor(username, password) {
-    this.username = username;
-    this.password = password;
+    // Limit username and password to 35 characters
+    if (username.length > 35) {
+      this.username = username.substring(0, 35);
+    } else {
+      this.username = username;
+    }
+    if (password.length > 35) {
+      this.password = password.substring(0, 35);
+    } else {
+      this.password = password;
+    }
     this.key = '1234'; // numerical key used to ensure caps-sensitivity
   }
 
@@ -67,10 +75,8 @@ class UserAccount {
     */
   userExists() {
     if (fs.existsSync(usersPath + this.username)) {
-      console.log(`User ${this.username} exists!`);
       return true;
     }
-    console.log(`User ${this.username} does not exist!`);
     return false;
   }
 
@@ -86,26 +92,20 @@ class UserAccount {
       fs.mkdirSync(usersPath + this.username);
       fs.writeFileSync(`${usersPath + this.username}/passchk`, this.key + this.password, function (err) {
         if (err) throw err;
-        console.log('Created passchk file!');
         this.isDone = true;
       });
       // Bash commands from node are not logged in .bash_history
-      exec(`${encryptorPath} ${usersPath}${this.username}/passchk ${this.password}`,
-        function (error, stdout, stderr) {
+      execSync(`${encryptorPath} ${usersPath}${this.username}/passchk ${this.password}`,
+        function (error) {
           if (error) {
             console.log(error.stack);
             console.log(`Error code: ${error.code}`);
             console.log(`Signal received: ${error.signal}`);
           }
-          console.log(`Child Process STDERR: ${stderr}`);
-          if (stderr.length > 0) {
-            console.log('Failed to encrypt password file!');
-          }
         });
       const progressSetup = 'Lesson1=0\nLesson2=0\nLesson3=0\nLesson4=0\nLesson5=0';
       fs.writeFileSync(`${usersPath + this.username}/progress`, progressSetup, function (err) {
         if (err) throw err;
-        console.log('Created progress file!');
       });
       return true;
     }
@@ -137,7 +137,6 @@ class UserAccount {
           }
         });
       const data = fs.readFileSync(`${usersPath + user}/passchk`, { encoding: 'utf8', flag: 'r' });
-      console.log(`pass: ${pass} data: ${data}`);
       if (`${data}` === key + pass) {
         attempt = true;
       } else {
@@ -157,7 +156,35 @@ class UserAccount {
         });
       return attempt;
     }
-    console.log('User passchk file does not exist!');
+    return false;
+  }
+
+  /*
+  deleteUser will delete the current user. The function will return true if the account was successfully deleted,
+  and false if the function failed.
+   */
+  deleteUser() {
+    if (this.userExists()) {
+      if (fs.existsSync(`${usersPath + this.username}/passchk`)) {
+        fs.unlinkSync(`${usersPath + this.username}/passchk`);
+      }
+      if (fs.existsSync(`${usersPath + this.username}/progress`)) {
+        fs.unlinkSync(`${usersPath + this.username}/progress`);
+      }
+      if (fs.existsSync(`${usersPath + this.username}/program`)) {
+        fs.unlinkSync(`${usersPath + this.username}/program`);
+      }
+      if (fs.existsSync(`${usersPath + this.username}/result.html`)) {
+        fs.unlinkSync(`${usersPath + this.username}/result.html`);
+      }
+      if (fs.existsSync(`${usersPath + this.username}/updatedprogress.html`)) {
+        fs.unlinkSync(`${usersPath + this.username}/updatedprogress.html`);
+      }
+      fs.rmdir(`${usersPath + this.username}`, function (err) {
+        if (err) throw err;
+      });
+      return true;
+    }
     return false;
   }
 }
@@ -175,7 +202,6 @@ function getProgress(username) {
     let completed = 0;
     let index = 9;
     let checkOrX = progressdata.substring(index - 1, index);
-    // console.log("checkOrX = " + checkOrX);
     // this will continue to loop until it's checked all the lessons a user has completed
     while (checkOrX === '1' && completed < lessonTotal) {
       completed++;
@@ -204,7 +230,6 @@ function findProgress(userCookieObj) {
     return data;
   });
   if (htmlObject) {
-    // console.log(htmlObject.substring(1996, 1997))
     let reps = 0;
     while (reps < completed) {
       htmlObject = htmlObject.replace('❌', '✅');
@@ -248,7 +273,6 @@ function createCFile(submission, testNo) {
   }
   const data = fs.readFileSync(testName, { encoding: 'utf8', flag: 'r' });
   const testStrings = data.split('//#B');
-  console.log(testStrings[0]);
   const newCFile = testStrings[0] + submission + testStrings[1];
   return newCFile;
 }
@@ -294,8 +318,6 @@ function updateProgress(lesson, status, username) {
   }
   let progressString = '';
   progressdata = progressdata.split('\n');
-  console.log('progressData split looks like the following:');
-  console.log(progressdata);
   for (let i = 1; i <= lessonTotal; i++) {
     if (i === lesson) {
       switch (status) {
@@ -322,8 +344,6 @@ function updateProgress(lesson, status, username) {
   fs.writeFileSync(`${__dirname}/users/${username}/progress`, progressString, function (err) {
     if (err) throw err;
   });
-  console.log('progressString is the following');
-  console.log(progressString);
 }
 
 /*
@@ -479,7 +499,6 @@ class ResultsPage {
       const path = `users/${this.user}/result.html`;
       fs.writeFileSync(path, page, function (err) {
         if (err) throw err;
-        console.log('Created result.html page!');
         this.isDone = true;
       });
     } else {
@@ -504,7 +523,6 @@ class ResultsPage {
       const path = `users/${this.user}/result.html`;
       fs.writeFileSync(path, page, function (err) {
         if (err) throw err;
-        console.log('Created result.html page!');
         this.isDone = true;
       });
     }
@@ -520,12 +538,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.get('/', function (req, res) {
   res.sendFile((`${__dirname}/views/home.html`));
-  const cookie = new CookieCipher(req.headers.cookie); // Read the user's cookie
-  if (!cookie.hasElement('username')) {
-    console.log('Currently logged in as Guest');
-  } else {
-    console.log(`Currently logged in as ${cookie.username}`);
-  }
 });
 
 app.get('/sidebar.css', function (req, res) {
@@ -560,7 +572,6 @@ app.post('/go', function (req, res) {
   } else {
     const currLesson = getProgress(usercheck.username);
     res.cookie('currentLesson', currLesson);
-    console.log(`Current lesson is ${currLesson}`);
     if (currLesson > lessonTests.length) {
       res.sendFile(`${__dirname}/views/complete.html`);
     } else {
@@ -577,7 +588,6 @@ app.post('/prev', function (req, res) {
   } else {
     const currLesson = getProgress(usercheck.username) - 1;
     res.cookie('currentLesson', currLesson);
-    console.log(`Current lesson is ${currLesson}`);
     res.sendFile(`${__dirname}/views/lesson${currLesson}.html`);
   }
 });
@@ -586,7 +596,6 @@ app.post('/login', function (req, res) {
   const verifyUser = new UserAccount(req.body.username, req.body.password);
   if (verifyUser.userExists()) {
     if (verifyUser.attemptLogin()) {
-      console.log('succesful login!');
       res.cookie('username', verifyUser.username);
       const currLesson = getProgress(verifyUser.username);
       res.cookie('currentLesson', currLesson);
@@ -595,11 +604,7 @@ app.post('/login', function (req, res) {
       } else {
         res.sendFile(`${__dirname}/views/lesson${currLesson}.html`);
       }
-    } else {
-      console.log('incorrect username/password');
     }
-  } else {
-    console.log('incorrect username/password');
   }
 });
 
@@ -609,7 +614,6 @@ app.post('/createacc', function (req, res) {
     newUser.createUser();
     res.cookie('username', newUser.username);
     const currLesson = getProgress(newUser.username);
-    console.log(`currentLessonNum = ${currLesson}`);
     // Save the currentLesson number as a cookie for later access
     res.cookie('currentLesson', currLesson);
     if (currLesson > lessonTests.length) {
@@ -617,33 +621,24 @@ app.post('/createacc', function (req, res) {
     } else {
       res.sendFile(`${__dirname}/views/lesson${currLesson}.html`);
     }
-  } else {
-    console.log('username already in use'); // need to hook something up to the frontend to notify of this
   }
 });
 
-let compileErr = false;
 app.post('/submission', urlencodedParser, function (req, res) {
+  let compileErr = false;
   const cookie = new CookieCipher(req.headers.cookie); // Read the user's cookie
   if (!cookie.hasElement('username')) {
     res.sendFile(`${__dirname}/views/home.html`);
     return;
   }
-  console.log(`CURRENTLY LOGGED IN AS ${cookie.username}`);
   const response = {
     submission: req.body.submission,
   };
-  console.log('Response is');
-  console.log(response);
   // must write synchronously to ensure main.c exists before gcc is called
-  console.log('DEBUG INFO');
-  console.log(cookie.username);
-  console.log(cookie.currentLesson);
   fs.appendFileSync(`users/${cookie.username}/main.c`, createCFile(response.submission,
     parseInt(cookie.currentLesson, 10)),
   function (err) {
     if (err) throw err;
-    console.log('Saved!');
   });
   const gcc = exec(`gcc -std=c99 -o users/${cookie.username}/program users/${cookie.username}/main.c`,
     function (error, stdout, stderr) {
@@ -652,8 +647,6 @@ app.post('/submission', urlencodedParser, function (req, res) {
         console.log(`Error code: ${error.code}`);
         console.log(`Signal received: ${error.signal}`);
       }
-      console.log(`Child Process STDOUT: ${stdout}`);
-      console.log(`Child Process STDERR: ${stderr}`);
       if (stderr.length > 0) {
         compileErr = true;
         const resultPage = new ResultsPage(false, 0, 0, stderr, cookie.username,
@@ -667,7 +660,6 @@ app.post('/submission', urlencodedParser, function (req, res) {
   gcc.on('exit', function () {
     fs.unlink(`users/${cookie.username}/main.c`, function (err) {
       if (err) throw err;
-      console.log('File deleted!');
     });
     const child = spawn(`./users/${cookie.username}/program`);
     // Get the number of tests from the lessonTests array
@@ -676,12 +668,10 @@ app.post('/submission', urlencodedParser, function (req, res) {
       // If all tests were passed ("0" to stdout)
       if (!compileErr) {
         if (`${data}` === '0') {
-          console.log('All tests passed!');
           const resultPage = new ResultsPage(true, `${data}`, numTests, 'All tests passed!',
             cookie.username, parseInt(cookie.currentLesson, 10));
           resultPage.buildPage();
         } else {
-          console.log(`${data} tests failed!`);
           const resultPage = new ResultsPage(true, `${data}`, numTests, 'Some tests failed!',
             cookie.username, parseInt(cookie.currentLesson, 10));
           resultPage.buildPage();
@@ -692,11 +682,17 @@ app.post('/submission', urlencodedParser, function (req, res) {
       console.error(`child stderr:\n${data}`);
     });
     child.on('exit', function () {
-      console.log('executed');
-      console.log(response);
       res.sendFile(`${__dirname}/users/${cookie.username}/result.html`);
     });
     // res.sendFile(__dirname + "/" + "result.html");
-    console.log('done');
   });
 });
+
+exports.failedTests = failedTests;
+exports.getProgress = getProgress;
+exports.createCFile = createCFile;
+exports.updateProgress = updateProgress;
+exports.createCFile = createCFile;
+exports.UserAccount = UserAccount;
+exports.ResultsPage = ResultsPage;
+exports.CookieCipher = CookieCipher;

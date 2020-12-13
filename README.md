@@ -6,4 +6,4 @@ For our project in CS 320 we have created a website that can be used to learn C 
 - Christian Galvez
 
 ## Project Status
-Implementation phase
+Testing Phase
