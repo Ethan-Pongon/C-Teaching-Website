@@ -11,7 +11,7 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 
 const lessonTotal = 5;
-const lessonTests = [2, 7, 2, 4, 99]; // Array containing test count per lesson
+const lessonTests = [2, 7, 2, 4, 2]; // Array containing test count per lesson
 
 const encryptorPath = 'programs/encryptor/encryptor';
 const usersPath = 'users/';
@@ -267,6 +267,9 @@ function createCFile(submission, testNo) {
     case 4:
       testName = 'lesson_modules/lesson4_tests.c';
       break;
+    case 5:
+      testName = 'lesson_modules/lesson5_tests.c';
+      break;
     default:
       console.log('No test defined for test ', testNo, '!');
       return 'Illegal Input';
@@ -500,6 +503,29 @@ function getFailedDesc(testsFailed, currentLesson) {
               break;
         }
       }
+    case 5: // For Lesson 5
+      // Iterate through all 8 bits (may not all be used)
+      for (let i = 1; i < 9; i++) {
+        switch (i) {
+          case 1:
+            if (testsFailed.includes(i)) {
+              testResults += '<p>❌ values does not hold 30 integers</p>';
+            } else {
+              testResults += '<p>✅ values does hold 30 integers</p>';
+            }
+            break;
+          case 2:
+            if (testsFailed.includes(i)) {
+              testResults += '<p>❌ there are not 30 instances of the integer 99</p>';
+            } else {
+              testResults += '<p>✅ there are 30 instances of the integer 99</p>';
+            }
+            break;
+          default:
+            break;
+        }
+      }
+      break;
     default:
       break;
   }

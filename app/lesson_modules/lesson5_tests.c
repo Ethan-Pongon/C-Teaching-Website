@@ -2,7 +2,7 @@
 
 /*
 Testfile will check for the following:
-1. myArray can hold 30 ints,
+1. the array 'values' can hold 30 ints,
 2. All the values of the users array equal 99
 */
 int arraySize = 0;
