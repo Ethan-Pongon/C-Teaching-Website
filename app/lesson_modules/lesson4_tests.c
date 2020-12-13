@@ -2,8 +2,10 @@
 
 /*
 Testfile will check for the following:
-1. a is equal to 4,
-2. a is an integer (or some 32 bit datatype)
+1. myArray can hold 3 ints,
+2. myArray[0] is equal to 5,
+3. myArray[1] is equal to 3,
+4. myArray[2] is equal to 10
 */
 int arraySize = 0;
 int userArray[3];
