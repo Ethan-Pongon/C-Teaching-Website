@@ -11,7 +11,7 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 
 const lessonTotal = 5;
-const lessonTests = [2, 7, 2, 4]; // Array containing test count per lesson
+const lessonTests = [2, 7, 2, 4, 99]; // Array containing test count per lesson
 
 const encryptorPath = 'programs/encryptor/encryptor';
 const usersPath = 'users/';

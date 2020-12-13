@@ -30,7 +30,12 @@
         it's index is as follows <span class="cInText">int newnum = storing[0]</span> this will set the new integer 'newnum' equal to
         the value stored at the zero index of the array 'storing'. Conversly, you can also change the value of an element in an array
         by doing the following <span class="cInText">storing[1] = 6;</span> where the value of the variable stored at the index one in
-        the array 'storing' will become 6.
+        the array 'storing' will become 6. 
+    </p>
+    <p>
+        It is also important to note that your program will crash if you attempt to access a space in your array that does not exist.
+        For example, if your array can hold 3 integers then you can access array[0], array[1], and array[2] since arrays begin counting
+        from zero. If you were to try and access array[3] this would be considered 'out of bounds' and your program would crash.
     </p>
     <p>
         Using this information, please create an array myArray that can store three integers and set the value at the zero index to 5, the
