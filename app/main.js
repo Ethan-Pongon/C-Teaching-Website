@@ -691,7 +691,7 @@ app.post('/createacc', function (req, res) {
 });
 
 app.post('/submission', urlencodedParser, function (req, res) {
-  let compileErr = false;
+  let compileErr = true;
   const cookie = new CookieCipher(req.headers.cookie); // Read the user's cookie
   if (!cookie.hasElement('username')) {
     res.sendFile(`${__dirname}/views/home.html`);
