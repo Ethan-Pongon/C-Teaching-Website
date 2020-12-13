@@ -136,4 +136,15 @@ describe('Test for correctness', function () {
       newUser.deleteUser();
     });
   });
+  describe('failedTests correctly returns an array for incorrect tests', function () {
+    it('failedTests(255) returns [1, 2, 3, 4, 5, 6, 7, 8]', function () {
+      expect(mainApp.failedTests(255)).to.deep.equal([1, 2, 3, 4, 5, 6, 7, 8]);
+    });
+    it('failedTests(0) returns []', function () {
+      expect(mainApp.failedTests(0)).to.deep.equal([]);
+    });
+    it('failedTests(42) returns [2, 4, 6]', function () {
+      expect(mainApp.failedTests(42)).to.deep.equal([2, 4, 6]);
+    });
+  });
 });
