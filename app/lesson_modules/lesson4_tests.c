@@ -6,12 +6,20 @@ Testfile will check for the following:
 2. a is an integer (or some 32 bit datatype)
 */
 int arraySize = 0;
+int userArray[3];
 
 int sample() {
     //#B
 
     arraySize = sizeof(myArray)/sizeof(int);
-    return myArray;
+    if(arraySize == 3){
+        int i = 0;
+        while(i < 3) {
+            userArray[i] = myArray[i];
+            i++;
+        }
+    }
+    return arraySize;
 }
 
 int assertEquals(int a, int b) {
@@ -33,11 +41,11 @@ int binaryTests(int maxTests) {
 int main() {
 	int maxErrors = 4;
 	int errorTests = binaryTests(4);
+    sample();
 	errorTests ^= assertEquals(arraySize, 3);
-    *arrPtr = sample();
-	errorTests ^= (assertEquals(arrPtr[0], 5) << 1);
-    errorTests ^= (assertEquals(arrPtr[1], 3) << 2);
-    errorTests ^= (assertEquals(arrPtr[2], 10) << 3);
+	errorTests ^= (assertEquals(userArray[0], 5) << 1);
+    errorTests ^= (assertEquals(userArray[1], 3) << 2);
+    errorTests ^= (assertEquals(userArray[2], 10) << 3);
 	printf("%d", errorTests);
 	return errorTests;
 }
