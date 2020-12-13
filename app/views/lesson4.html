@@ -1,0 +1,71 @@
+<link rel="stylesheet" type="text/css" href="sidebar.css">
+<link rel="stylesheet" type="text/css" href="home.css">
+<div class="page">
+<div class="sidebar">
+    <a href="/">Home</a>
+    <div class="divider"></div>
+    <a href="/Progress">Progress</a>
+    <div class="divider"></div>
+    <a href="/About">About</a>
+
+</div>
+
+<div class="contentHeaderBanner">
+    <div class="lessonHeaderText">
+        <h>Lesson 4</h>
+    </div>
+</div>
+
+<div class="lessonContentHeader">
+    <h>Using Arrays in C</h>
+</div>
+<div class="lessonContent">
+    <p>
+        In C there is a data structure known as an array that can hold several different values of the same type.
+        To declare an array with the name 'storing' that holds 5 integer values you would type <span class="cInText">int storing[5];</span>.
+        This is a very helpful tool because it allows you to group related data together under one variable and it is also a convienent
+        way to access data sequentially. To access each value in an array, called an 'element', you use the value's 'index' which is
+        the number of item an element is in an array. Additionally, arrays begin counting at zero so the first element will be at index
+        zero, the second element will be at index one, the third element at index two and so on. The syntax for accessing an element with
+        it's index is as follows <span class="cInText">int newnum = storing[0]</span> this will set the new integer 'newnum' equal to
+        the value stored at the zero index of the array 'storing'. Conversly, you can also change the value of an element in an array
+        by doing the following <span class="cInText">storing[1] = 6;</span> where the value of the variable stored at the index one in
+        the array 'storing' will become 6. 
+    </p>
+    <p>
+        It is also important to note that your program will crash if you attempt to access a space in your array that does not exist.
+        For example, if your array can hold 3 integers then you can access array[0], array[1], and array[2] since arrays begin counting
+        from zero. If you were to try and access array[3] this would be considered 'out of bounds' and your program would crash.
+    </p>
+    <p>
+        Using this information, please create an array myArray that can store three integers and set the value at the zero index to 5, the
+        value at the one index to 3 and the value at the 2 index to 10 <span class="important"> in proper C syntax.</span>
+    </p>
+</div>
+<div class="lessonBarrier"></div>
+<p class="tryText">Try it!</p>
+<b>
+    <!--- have an onload function that sets an attribute of this form with the users name so that the node function can determine who is running the code-->
+    <form action = "/submission" method = "POST">
+        <textarea type = "text" name = "submission"
+            cols = "70" rows = "10" maxlength = "350"
+            class="codeEntry" id="lessonInput"></textarea>
+        <input type = "submit" value = "Submit"
+        onclick="saveInput()" class="submitButton"></input>
+    </form>
+</b>
+
+<script>
+    const lessonName = "lesson4";
+    function saveInput() {
+        localStorage.setItem(lessonName, document.getElementById("lessonInput").value);
+    }
+    function loadInput() {
+        let loadVal = localStorage.getItem(lessonName);
+        console.log(loadVal);
+        if (loadVal != null) {
+            document.getElementById("lessonInput").value = loadVal;
+        }
+    }
+    loadInput();
+</script>
