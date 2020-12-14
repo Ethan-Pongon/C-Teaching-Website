@@ -713,28 +713,22 @@ app.post('/submission', urlencodedParser, function (req, res) {
   });
   const gcc = exec(`gcc -std=c99 -o users/${cookie.username}/program users/${cookie.username}/main.c`,
     function (error, stdout, stderr) {
-    // Disabled error handling for GCC to allow for bad user input
-     if (error) {
-        console.log(error.stack);
-        console.log(`Error code: ${error.code}`);
-        console.log(`Signal received: ${error.signal}`);
-      }
-      if (stderr.length > 0) {
+      if (stderr.length <= 0) {
+        compileErr = false;
+      } else {
         compileErr = true;
         const resultPage = new ResultsPage(false, 0, 0,
           'Code compiling has failed! Please check your syntax and try again!', cookie.username,
           parseInt(cookie.currentLesson, 10));
         resultPage.buildPage();
         res.sendFile(`${__dirname}/users/${cookie.username}/result.html`);
-      } else {
-        compileErr = false;
       }
     });
   gcc.on('exit', function () {
     fs.unlink(`users/${cookie.username}/main.c`, function (err) {
       if (err) throw err;
     });
-    if (compileErr) {
+    if (compileErr || !fs.existsSync(`users/${cookie.username}/program`)) {
       return;
     }
     const child = spawn(`./users/${cookie.username}/program`);
