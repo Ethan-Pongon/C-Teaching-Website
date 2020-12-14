@@ -566,6 +566,7 @@ class ResultsPage {
       + `1><b><p>Compiler failed with the following output:<p id="output">${this.out}</p></b></div><div class="center">`
           + '<form action="/go" method="POST"><button>Back</button></form></div>';
       const path = `users/${this.user}/result.html`;
+      updateProgress(this.currentLesson, 0, this.user);
       fs.writeFileSync(path, page, function (err) {
         if (err) throw err;
         this.isDone = true;
@@ -695,7 +696,7 @@ app.post('/createacc', function (req, res) {
 });
 
 app.post('/submission', urlencodedParser, function (req, res) {
-  let compileErr = true;
+  let compileErr = false;
   const cookie = new CookieCipher(req.headers.cookie); // Read the user's cookie
   if (!cookie.hasElement('username')) {
     res.sendFile(`${__dirname}/views/home.html`);
@@ -713,11 +714,11 @@ app.post('/submission', urlencodedParser, function (req, res) {
   const gcc = exec(`gcc -std=c99 -o users/${cookie.username}/program users/${cookie.username}/main.c`,
     function (error, stdout, stderr) {
     // Disabled error handling for GCC to allow for bad user input
-    /* if (error) {
+     if (error) {
         console.log(error.stack);
         console.log(`Error code: ${error.code}`);
         console.log(`Signal received: ${error.signal}`);
-      } */
+      }
       if (stderr.length > 0) {
         compileErr = true;
         const resultPage = new ResultsPage(false, 0, 0,
