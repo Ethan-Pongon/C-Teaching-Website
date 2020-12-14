@@ -24,7 +24,7 @@
         If you want to repeat an action several times you may use what is called a 'loop'. The type of loop we
         will be using for this lesson is a 'while loop', which will continue to loop until its 'condition' is no
         longer true. To keep on looping, a while loop will do everything after the opening bracket { and before the
-        closing bracket } then return to the opening bracket and do it again. This continues until the condition 
+        closing bracket } then return to the opening bracket and do it again. This continues until the condition
         associated with the loop is no longer true.
     </p>
     <p>
@@ -42,19 +42,19 @@
     <p>
         So a while loop will have a 'condition' inside parenthesis after the keyword 'while'. This condition will be
         checked after each time the loop reaches the closing bracket }. In this example the condition is <span class="cInText">i < 4</span> so
-        every time the loop finishes doing <span class="cInText">sum = sum + i;</span> and <span class="cInText">i = i + 1</span> it will check 
-        if i is still less than 4. Until i is greater than or equal to 4 the stuff inside the brackets of the loop will continue to happen. To 
+        every time the loop finishes doing <span class="cInText">sum = sum + i;</span> and <span class="cInText">i = i + 1</span> it will check
+        if i is still less than 4. Until i is greater than or equal to 4 the stuff inside the brackets of the loop will continue to happen. To
         keep this loop from running forever we will increase the value of i by one each time the loop happens with <span class="cInText">i = i + 1;</span>.
-        This means after the loop happens once i will equal 1, then after the second looping i will equal 2 and so on. 
+        This means after the loop happens once i will equal 1, then after the second looping i will equal 2 and so on.
         Eventually i will be equal to 4 and when the loop checks it's condition of <span class="cInText">i < 4</span> it will see that it
         is not true that i is less than 4. Once this happens the program will continue running beginning right after the closing bracket }
-        of the loop. 
+        of the loop.
     </p>
     <p>
         As for the purpose of this loop, let us examine the content within in. <span class="cInText">sum = sum + i;</span> will add the value
-        of 'sum' and 'i' each time the loop runs and store that value in 'sum'. On the first run of the loop sum will be set to equal 0 + 0 
+        of 'sum' and 'i' each time the loop runs and store that value in 'sum'. On the first run of the loop sum will be set to equal 0 + 0
         because both sum and i equal 0. On the second run i will be equal to 1, because of <span class="cInText">i = i + 1;</span> in
-        the last iteration of the loop, and sum will be equal to 0 so sum will be set to equal 0 + 1. On the third run sum will be equal to 
+        the last iteration of the loop, and sum will be equal to 0 so sum will be set to equal 0 + 1. On the third run sum will be equal to
         1 while i will be equal to 2 so sum will be set equal to 1 + 2. The third run will have sum being 3 and i being 3 so sum will then be
         set equal to 3 + 3. However, when the loop goes to the top of bracket again it will check if i is still less than 4 and it won't be
         because last time <span class="cInText">i = i + 1;</span> was equivalent to i = 3 + 1, so i is equal to 4. This means our loop is complete
@@ -94,3 +94,4 @@
     }
     loadInput();
 </script>
+</div>

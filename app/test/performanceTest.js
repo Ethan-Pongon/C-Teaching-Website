@@ -19,6 +19,7 @@ describe('Tests for performance',
         mainApp.getProgress(username);
         this.slow(0);
         this.timeout(5000);
+        newUser.deleteUser();
       });
       it('Creating Advanced User Account', function () {
         const username = 'aaaaaaaaaaaaaaaaaaaaaaaa';
@@ -37,11 +38,12 @@ describe('Tests for performance',
       it('Signing into a User Account', function () {
         const username = 'MarkAntony22';
         const password = 'Password';
-        const verifyUser = new mainApp.UserAccount(username, password);
+        const newUser = new mainApp.UserAccount(username, password);
+        newUser.createUser();
         function combinedTest() {
-          if (verifyUser.userExists()) {
-            if (verifyUser.attemptLogin()) {
-              mainApp.getProgress(verifyUser.username);
+          if (newUser.userExists()) {
+            if (newUser.attemptLogin()) {
+              mainApp.getProgress(newUser.username);
             }
           }
           return true;
@@ -49,7 +51,7 @@ describe('Tests for performance',
         expect(combinedTest()).to.equal(true);
         this.slow(0);
         this.timeout(10000);
-        verifyUser.deleteUser();
+        newUser.deleteUser();
       });
     });
   });

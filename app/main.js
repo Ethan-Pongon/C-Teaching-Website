@@ -95,7 +95,8 @@ class UserAccount {
         this.isDone = true;
       });
       // Bash commands from node are not logged in .bash_history
-      const encryptor = exec(`${encryptorPath} ${usersPath}${this.username}/passchk ${this.password}`,
+      // eslint-disable-next-line no-unused-vars
+      const encryptor = execSync(`${encryptorPath} ${usersPath}${this.username}/passchk ${this.password}`,
         function (error) {
           if (error) {
             console.log(error.stack);
@@ -128,6 +129,7 @@ class UserAccount {
             Decrypt the passchk file with the given password, and check
             if the contents of the file equal the given password.
             */
+      // eslint-disable-next-line no-unused-vars
       const decryptor = execSync(`${encryptorPath} ${usersPath}${this.username}/passchk ${this.password}`,
         function (error) {
           if (error) {
@@ -146,6 +148,7 @@ class UserAccount {
             Re-encrypt the passchk file after decryption using the given
             password.
             */
+      // eslint-disable-next-line no-unused-vars
       const encryptor = execSync(`${encryptorPath} ${usersPath}${this.username}/passchk ${this.password}`,
         function (error) {
           if (error) {
@@ -470,37 +473,37 @@ function getFailedDesc(testsFailed, currentLesson) {
     case 4: // For Lesson 4
       // Iterate through all 8 bits (may not all be used)
       for (let i = 1; i < 9; i++) {
-          switch (i) {
-            case 1:
-              if (testsFailed.includes(i)) {
-                testResults += '<p>❌ myArray is not able to hold 3 integers</p>';
-              } else {
-                testResults += '<p>✅ myArray is able to hold 3 integers</p>'
-              }
-              break;
-            case 2:
-              if (testsFailed.includes(i)) {
-                testResults += '<p>❌ myArray[0] is not equal to 5</p>';
-              } else {
-                testResults += '<p>✅ myArray[0] is equal to 5</p>'
-              }
-              break;
-            case 3:
-              if (testsFailed.includes(i)) {
-                testResults += '<p>❌ myArray[0] is not equal to 3</p>';
-              } else {
-                testResults += '<p>✅ myArray[0] is equal to 3</p>'
-              }
-              break;
-            case 4:
-              if (testsFailed.includes(i)) {
-                testResults += '<p>❌ myArray[0] is not equal to 10</p>';
-              } else {
-                testResults += '<p>✅ myArray[0] is equal to 10</p>'
-              }
-              break;
-            default:
-              break;
+        switch (i) {
+          case 1:
+            if (testsFailed.includes(i)) {
+              testResults += '<p>❌ myArray is not able to hold 3 integers</p>';
+            } else {
+              testResults += '<p>✅ myArray is able to hold 3 integers</p>';
+            }
+            break;
+          case 2:
+            if (testsFailed.includes(i)) {
+              testResults += '<p>❌ myArray[0] is not equal to 5</p>';
+            } else {
+              testResults += '<p>✅ myArray[0] is equal to 5</p>';
+            }
+            break;
+          case 3:
+            if (testsFailed.includes(i)) {
+              testResults += '<p>❌ myArray[0] is not equal to 3</p>';
+            } else {
+              testResults += '<p>✅ myArray[0] is equal to 3</p>';
+            }
+            break;
+          case 4:
+            if (testsFailed.includes(i)) {
+              testResults += '<p>❌ myArray[0] is not equal to 10</p>';
+            } else {
+              testResults += '<p>✅ myArray[0] is equal to 10</p>';
+            }
+            break;
+          default:
+            break;
         }
       }
       break;
@@ -599,7 +602,8 @@ class ResultsPage {
   }
 }
 
-app.listen(port);
+// eslint-disable-next-line no-unused-vars
+const server = app.listen(port);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.get('/', function (req, res) {
@@ -708,14 +712,16 @@ app.post('/submission', urlencodedParser, function (req, res) {
   });
   const gcc = exec(`gcc -std=c99 -o users/${cookie.username}/program users/${cookie.username}/main.c`,
     function (error, stdout, stderr) {
-      if (error) {
+    // Disabled error handling for GCC to allow for bad user input
+    /* if (error) {
         console.log(error.stack);
         console.log(`Error code: ${error.code}`);
         console.log(`Signal received: ${error.signal}`);
-      }
+      } */
       if (stderr.length > 0) {
         compileErr = true;
-        const resultPage = new ResultsPage(false, 0, 0, stderr, cookie.username,
+        const resultPage = new ResultsPage(false, 0, 0,
+          'Code compiling has failed! Please check your syntax and try again!', cookie.username,
           parseInt(cookie.currentLesson, 10));
         resultPage.buildPage();
         res.sendFile(`${__dirname}/users/${cookie.username}/result.html`);
@@ -727,6 +733,9 @@ app.post('/submission', urlencodedParser, function (req, res) {
     fs.unlink(`users/${cookie.username}/main.c`, function (err) {
       if (err) throw err;
     });
+    if (compileErr) {
+      return;
+    }
     const child = spawn(`./users/${cookie.username}/program`);
     // Get the number of tests from the lessonTests array
     const numTests = lessonTests[parseInt(cookie.currentLesson, 10) - 1];
