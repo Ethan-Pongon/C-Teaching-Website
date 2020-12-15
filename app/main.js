@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 const port = process.env.PORT || 8081;
 const { spawn } = require('child_process');
+const { spawnSync } = require('child_process');
 const { exec } = require('child_process');
 const { execSync } = require('child_process');
 const fs = require('fs');
@@ -731,29 +732,27 @@ app.post('/submission', urlencodedParser, function (req, res) {
     if (compileErr || !fs.existsSync(`users/${cookie.username}/program`)) {
       return;
     }
-    const child = spawn(`./users/${cookie.username}/program`);
-    // Get the number of tests from the lessonTests array
     const numTests = lessonTests[parseInt(cookie.currentLesson, 10) - 1];
-    child.stdout.on('data', (data) => {
-      // If all tests were passed ("0" to stdout)
-      if (!compileErr) {
-        if (`${data}` === '0') {
-          const resultPage = new ResultsPage(true, `${data}`, numTests, 'All tests passed!',
-            cookie.username, parseInt(cookie.currentLesson, 10));
-          resultPage.buildPage();
-        } else {
-          const resultPage = new ResultsPage(true, `${data}`, numTests, 'Some tests failed!',
-            cookie.username, parseInt(cookie.currentLesson, 10));
-          resultPage.buildPage();
-        }
-      }
-    });
-    child.stderr.on('data', (data) => {
-      console.error(`child stderr:\n${data}`);
-    });
-    child.on('exit', function () {
-      res.sendFile(`${__dirname}/users/${cookie.username}/result.html`);
-    });
+    const child = spawnSync(`./users/${cookie.username}/program`, { timeout: 10000 });
+    // If the process timed out
+    if (`${child.signal}` === 'SIGTERM') {
+        const resultPage = new ResultsPage(false, 0, 0,
+          'Code execution took too long! Please try again.', cookie.username,
+          parseInt(cookie.currentLesson, 10));
+        resultPage.buildPage();
+        res.sendFile(`${__dirname}/users/${cookie.username}/result.html`);
+        return;
+    }
+    if (`${child.stdout}` === '0') {
+    const resultPage = new ResultsPage(true, `${child.stdout}`, numTests, 'All tests passed!',
+      cookie.username, parseInt(cookie.currentLesson, 10));
+    resultPage.buildPage();
+    } else {
+    const resultPage = new ResultsPage(true, `${child.stdout}`, numTests, 'Some tests failed!',
+      cookie.username, parseInt(cookie.currentLesson, 10));
+    resultPage.buildPage();
+    }
+    res.sendFile(`${__dirname}/users/${cookie.username}/result.html`);
     // res.sendFile(__dirname + "/" + "result.html");
   });
 });
