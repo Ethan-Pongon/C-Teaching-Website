@@ -5,7 +5,6 @@ const bodyParser = require('body-parser');
 
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 const port = process.env.PORT || 8081;
-const { spawn } = require('child_process');
 const { spawnSync } = require('child_process');
 const { exec } = require('child_process');
 const { execSync } = require('child_process');
@@ -736,21 +735,21 @@ app.post('/submission', urlencodedParser, function (req, res) {
     const child = spawnSync(`./users/${cookie.username}/program`, { timeout: 10000 });
     // If the process timed out
     if (`${child.signal}` === 'SIGTERM') {
-        const resultPage = new ResultsPage(false, 0, 0,
-          'Code execution took too long! Please try again.', cookie.username,
-          parseInt(cookie.currentLesson, 10));
-        resultPage.buildPage();
-        res.sendFile(`${__dirname}/users/${cookie.username}/result.html`);
-        return;
+      const resultPage = new ResultsPage(false, 0, 0,
+        'Code execution took too long! Please try again.', cookie.username,
+        parseInt(cookie.currentLesson, 10));
+      resultPage.buildPage();
+      res.sendFile(`${__dirname}/users/${cookie.username}/result.html`);
+      return;
     }
     if (`${child.stdout}` === '0') {
-    const resultPage = new ResultsPage(true, `${child.stdout}`, numTests, 'All tests passed!',
-      cookie.username, parseInt(cookie.currentLesson, 10));
-    resultPage.buildPage();
+      const resultPage = new ResultsPage(true, `${child.stdout}`, numTests, 'All tests passed!',
+        cookie.username, parseInt(cookie.currentLesson, 10));
+      resultPage.buildPage();
     } else {
-    const resultPage = new ResultsPage(true, `${child.stdout}`, numTests, 'Some tests failed!',
-      cookie.username, parseInt(cookie.currentLesson, 10));
-    resultPage.buildPage();
+      const resultPage = new ResultsPage(true, `${child.stdout}`, numTests, 'Some tests failed!',
+        cookie.username, parseInt(cookie.currentLesson, 10));
+      resultPage.buildPage();
     }
     res.sendFile(`${__dirname}/users/${cookie.username}/result.html`);
     // res.sendFile(__dirname + "/" + "result.html");
